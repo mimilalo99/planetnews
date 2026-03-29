@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Planet News — The Intelligence Terminal That Beats Bloomberg</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#020409;--bg2:#040710;--bg3:#060b16;
+  --s1:#0a1020;--s2:#0d1528;--s3:#111c35;--s4:#162240;
+  --teal:#00f5d4;--teal2:#00c9ad;--teal3:rgba(0,245,212,.1);
+  --gold:#f59e0b;--red:#f43f5e;--green:#10b981;--blue:#3b82f6;--violet:#8b5cf6;--orange:#f97316;
+  --text:#ddeaf8;--muted:#2e4060;--muted2:#4a6080;--muted3:#7a9ab8;
+  --border:rgba(0,245,212,.1);--border2:rgba(255,255,255,.055);
+  --glow:0 0 40px rgba(0,245,212,.12);--glow2:0 0 24px rgba(0,245,212,.22);
+  --font-d:'Syne',sans-serif;--font-b:'DM Sans',sans-serif;--font-m:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-b);line-height:1.6;overflow-x:hidden;cursor:none;}
+/* CURSOR */
+#cur{position:fixed;width:8px;height:8px;background:var(--teal);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen;}
+#curR{position:fixed;width:32px;height:32px;border:1px solid rgba(0,245,212,.35);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .18s,height .18s;}
+body.cb #cur{width:14px;height:14px;}
+body.cb #curR{width:48px;height:48px;}
+#spbar{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--teal),#3b82f6,#8b5cf6);z-index:300;}
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:.9rem 3rem;background:rgba(2,4,9,.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,245,212,.06);}
+nav.stuck{padding:.65rem 3rem;background:rgba(2,4,9,.97);}
+.logo{display:flex;align-items:center;gap:.5rem;font-family:var(--font-d);font-weight:800;font-size:1.12rem;letter-spacing:-.02em;color:var(--text);text-decoration:none;}
+.logo-orb{width:20px;height:20px;border-radius:50%;background:conic-gradient(var(--teal),var(--blue),var(--teal));box-shadow:0 0 14px rgba(0,245,212,.55);animation:orspin 6s linear infinite;}
+@keyframes orspin{to{filter:hue-rotate(360deg);}}
+.nl{display:flex;gap:1.75rem;list-style:none;}
+.nl a{color:var(--muted3);font-size:.82rem;font-weight:500;text-decoration:none;transition:color .2s;}
+.nl a:hover{color:var(--text);}
+.nav-r{display:flex;gap:.6rem;}
+.nbtn{padding:.38rem .95rem;border-radius:6px;font-family:var(--font-b);font-size:.8rem;font-weight:500;cursor:pointer;transition:all .2s;text-decoration:none;border:1px solid var(--border2);background:transparent;color:var(--text);}
+.nbtn:hover{border-color:var(--teal);color:var(--teal);}
+.nbtn-p{background:var(--teal);border-color:var(--teal);color:#020409;font-weight:700;}
+.nbtn-p:hover{background:#00ffd9;box-shadow:var(--glow2);}
+/* TICKER */
+.tick-bar{position:fixed;top:58px;left:0;right:0;z-index:199;overflow:hidden;background:rgba(4,7,16,.97);border-bottom:1px solid rgba(0,245,212,.055);padding:.26rem 0;}
+.tick-tr{display:flex;width:max-content;animation:tscroll 55s linear infinite;}
+.tick-tr:hover{animation-play-state:paused;}
+.ti{display:inline-flex;align-items:center;gap:.35rem;padding:0 1.75rem;font-family:var(--font-m);font-size:.62rem;white-space:nowrap;color:var(--muted3);}
+.up{color:var(--green);}
+.dn{color:var(--red);}
+.hi{color:var(--teal);}
+.warn{color:var(--gold);}
+@keyframes tscroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+/* HERO */
+#hero{position:relative;min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:3rem;padding:10rem 3rem 5rem;max-width:1440px;margin:0 auto;}
+#pcanvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55;}
+.hero-l{position:relative;z-index:2;}
+.hero-r{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;}
+.eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(0,245,212,.06);border:1px solid rgba(0,245,212,.18);border-radius:100px;padding:.28rem .88rem;font-family:var(--font-m);font-size:.6rem;letter-spacing:.1em;color:var(--teal);text-transform:uppercase;margin-bottom:1.3rem;animation:fup .7s ease both;}
+.pdot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:pb 1.4s ease-in-out infinite;}
+@keyframes pb{0%,100%{opacity:1;}50%{opacity:.15;}}
+h1{font-family:var(--font-d);font-size:clamp(2.6rem,4vw,4.2rem);font-weight:800;letter-spacing:-.035em;line-height:1.02;margin-bottom:1.35rem;animation:fup .7s .1s ease both;}
+.grad{background:linear-gradient(130deg,var(--teal) 0%,#60a5fa 55%,#a78bfa 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.tw-w{display:inline-block;min-width:12ch;}
+.tw-c{display:inline-block;width:3px;height:.82em;background:var(--teal);vertical-align:-.04em;animation:blink .85s step-end infinite;}
+@keyframes blink{50%{opacity:0;}}
+.hero-sub{font-size:.98rem;color:var(--muted3);line-height:1.8;max-width:490px;margin-bottom:2.1rem;animation:fup .7s .2s ease both;}
+.hero-btns{display:flex;gap:.65rem;flex-wrap:wrap;margin-bottom:2.1rem;animation:fup .7s .3s ease both;}
+.btn-p{background:var(--teal);color:#020409;border:none;padding:.75rem 1.6rem;border-radius:9px;font-family:var(--font-d);font-weight:700;font-size:.88rem;cursor:pointer;transition:all .25s;text-decoration:none;display:inline-flex;align-items:center;gap:.42rem;}
+.btn-p:hover{background:#00ffd9;box-shadow:var(--glow2);transform:translateY(-2px);}
+.btn-s{background:transparent;color:var(--text);border:1px solid var(--border2);padding:.75rem 1.6rem;border-radius:9px;font-family:var(--font-d);font-weight:600;font-size:.88rem;cursor:pointer;transition:all .25s;text-decoration:none;display:inline-flex;align-items:center;gap:.42rem;}
+.btn-s:hover{border-color:var(--teal);color:var(--teal);}
+.trust-row{display:flex;align-items:center;gap:1.2rem;animation:fup .7s .4s ease both;}
+.t-avs{display:flex;}
+.t-av{width:26px;height:26px;border-radius:50%;border:2px solid var(--bg);margin-left:-7px;}
+.t-av:first-child{margin-left:0;}
+.a1{background:linear-gradient(135deg,#1a4d2e,#0d2618);}
+.a2{background:linear-gradient(135deg,#4d1a2e,#260d18);}
+.a3{background:linear-gradient(135deg,#2e1a4d,#180d26);}
+.a4{background:linear-gradient(135deg,#4d361a,#261b0d);}
+.t-txt{font-size:.74rem;color:var(--muted3);}
+.t-txt strong{color:var(--text);}
+@keyframes fup{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+/* GLOBE */
+#gwrap{position:relative;width:510px;height:510px;}
+#gc{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border-radius:50%;cursor:grab;z-index:3;}
+.gr{position:absolute;border-radius:50%;border:1px solid rgba(0,245,212,.07);top:50%;left:50%;transform:translate(-50%,-50%);}
+.gr1{width:580px;height:580px;animation:rspin 22s linear infinite;}
+.gr1::after{content:'';position:absolute;top:-4px;left:50%;width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 10px var(--teal);transform:translateX(-50%);}
+.gr2{width:655px;height:655px;animation:rspin 40s linear infinite reverse;border-color:rgba(59,130,246,.06);}
+.gr2::before{content:'';position:absolute;bottom:-3px;left:28%;width:5px;height:5px;border-radius:50%;background:var(--blue);box-shadow:0 0 7px var(--blue);}
+@keyframes rspin{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+#gtt{position:fixed;background:rgba(4,7,16,.97);border:1px solid rgba(0,245,212,.2);border-radius:9px;padding:.68rem .95rem;pointer-events:none;z-index:9990;backdrop-filter:blur(14px);min-width:155px;display:none;}
+#gtt .gn{font-family:var(--font-d);font-weight:700;font-size:.87rem;margin-bottom:.32rem;}
+#gtt .gr2b{display:flex;justify-content:space-between;gap:.75rem;font-size:.67rem;color:var(--muted3);padding:.08rem 0;}
+#gtt .gv{color:var(--teal);font-family:var(--font-m);}
+#gtt .gh{font-size:.58rem;color:var(--teal);margin-top:.35rem;font-family:var(--font-m);}
+.glb-hint{position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);font-family:var(--font-m);font-size:.58rem;color:var(--muted2);white-space:nowrap;animation:fup 1s 2.5s ease both;opacity:0;}
+/* CITY PANEL */
+#cpanel{position:fixed;right:-440px;top:0;width:420px;height:100vh;background:var(--s1);border-left:1px solid var(--border);z-index:250;overflow-y:auto;transition:right .42s cubic-bezier(.22,.68,0,1.2);box-shadow:-24px 0 70px rgba(0,0,0,.8);}
+#cpanel.open{right:0;}
+.cph{padding:1.3rem;border-bottom:1px solid var(--border2);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--s1);z-index:5;}
+.cpn{font-family:var(--font-d);font-weight:700;font-size:1.3rem;letter-spacing:-.02em;}
+.cpco{font-size:.74rem;color:var(--muted3);margin-top:.1rem;}
+.cpst{display:inline-flex;align-items:center;gap:.3rem;font-family:var(--font-m);font-size:.58rem;padding:.15rem .5rem;border-radius:4px;margin-top:.4rem;}
+.st-ok{background:rgba(16,185,129,.1);color:var(--green);border:1px solid rgba(16,185,129,.2);}
+.st-warn{background:rgba(245,158,11,.1);color:var(--gold);border:1px solid rgba(245,158,11,.2);}
+.st-hi{background:rgba(244,63,94,.1);color:var(--red);border:1px solid rgba(244,63,94,.2);}
+.cpclose{background:rgba(255,255,255,.05);border:none;color:var(--text);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:.85rem;transition:all .2s;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cpclose:hover{background:rgba(244,63,94,.2);color:var(--red);}
+.cpbody{padding:1rem;}
+.cps{margin-bottom:1.25rem;}
+.cpst2{font-family:var(--font-m);font-size:.56rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem;display:flex;align-items:center;gap:.45rem;}
+.cpst2::after{content:'';flex:1;height:1px;background:var(--border2);}
+.cpc{background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:.78rem;margin-bottom:.4rem;}
+.cpcr{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;padding:.2rem 0;}
+.cpcl{color:var(--muted3);}
+.cpcv{font-family:var(--font-m);font-size:.76rem;color:var(--teal);}
+.cpcv.g{color:var(--green);}
+.cpcv.r{color:var(--red);}
+.cpcv.o{color:var(--gold);}
+.cni{background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:.74rem;margin-bottom:.4rem;transition:border-color .2s;}
+.cni:hover{border-color:var(--border);}
+.cni-cat{font-family:var(--font-m);font-size:.54rem;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.25rem;}
+.cni-t{font-size:.76rem;line-height:1.5;}
+.cni-m{font-size:.63rem;color:var(--muted);margin-top:.25rem;}
+.rbar{height:4px;border-radius:2px;background:rgba(255,255,255,.05);margin:.35rem 0 .1rem;}
+.rfill{height:100%;border-radius:2px;}
+.rlbl{display:flex;justify-content:space-between;font-size:.66rem;}
+.wx-c{text-align:center;padding:.8rem 0;}
+.wx-ico{font-size:2.6rem;margin-bottom:.35rem;}
+.wx-tmp{font-family:var(--font-d);font-size:2.2rem;font-weight:800;letter-spacing:-.04em;}
+.wx-desc{font-size:.76rem;color:var(--muted3);margin-top:.15rem;}
+.wx-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.35rem;margin-top:.8rem;}
+.wx-cell{background:var(--s2);border-radius:6px;padding:.48rem;text-align:center;font-size:.64rem;color:var(--muted3);}
+.wx-cell strong{display:block;font-family:var(--font-m);font-size:.7rem;color:var(--text);margin-top:.1rem;}
+/* STATS */
+.stats-bar{background:var(--bg2);border-top:1px solid var(--border2);border-bottom:1px solid var(--border2);padding:1.75rem 3rem;display:flex;justify-content:center;gap:4.5rem;flex-wrap:wrap;}
+.stat{text-align:center;}
+.stat-n{font-family:var(--font-d);font-size:2rem;font-weight:800;letter-spacing:-.04em;color:var(--teal);display:block;}
+.stat-l{font-family:var(--font-m);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);}
+/* SHARED */
+.sec-l{font-family:var(--font-m);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin-bottom:.5rem;}
+.sec-t{font-family:var(--font-d);font-size:clamp(1.7rem,3vw,2.55rem);font-weight:800;letter-spacing:-.04em;line-height:1.05;margin-bottom:.65rem;}
+.sec-sub{color:var(--muted3);font-size:.91rem;line-height:1.75;max-width:480px;}
+.rv{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease;}
+.rv.in{opacity:1;transform:none;}
+.rvl{opacity:0;transform:translateX(-22px);transition:opacity .7s ease,transform .7s ease;}
+.rvl.in{opacity:1;transform:none;}
+.rvr{opacity:0;transform:translateX(22px);transition:opacity .7s ease,transform .7s ease;}
+.rvr.in{opacity:1;transform:none;}
+.sw{max-width:1300px;margin:0 auto;padding:5.5rem 3rem;}
+/* ═══ MARKET CLOCK ═══ */
+#mktclock{background:var(--bg3);border-top:1px solid var(--border2);}
+.clock-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:.75rem;margin-top:2rem;}
+.mkt-card{background:var(--s1);border:1px solid var(--border2);border-radius:11px;padding:1rem;transition:all .3s;position:relative;overflow:hidden;}
+.mkt-card.open{border-color:rgba(16,185,129,.25);background:linear-gradient(160deg,rgba(16,185,129,.04),var(--s1));}
+.mkt-card.pre{border-color:rgba(245,158,11,.2);background:linear-gradient(160deg,rgba(245,158,11,.04),var(--s1));}
+.mkt-card.closed{border-color:var(--border2);opacity:.7;}
+.mkt-flag{font-size:1.4rem;margin-bottom:.5rem;display:block;}
+.mkt-name{font-family:var(--font-d);font-weight:700;font-size:.88rem;margin-bottom:.15rem;}
+.mkt-idx{font-family:var(--font-m);font-size:.72rem;color:var(--muted3);margin-bottom:.5rem;}
+.mkt-status{display:inline-flex;align-items:center;gap:.3rem;font-family:var(--font-m);font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;padding:.18rem .52rem;border-radius:4px;}
+.st-open{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.2);}
+.st-pre{background:rgba(245,158,11,.1);color:var(--gold);border:1px solid rgba(245,158,11,.2);}
+.st-closed{background:rgba(255,255,255,.05);color:var(--muted3);border:1px solid var(--border2);}
+.mkt-time{font-family:var(--font-m);font-size:.78rem;color:var(--muted3);margin-top:.5rem;}
+.mkt-hours{font-size:.65rem;color:var(--muted2);margin-top:.15rem;}
+.mkt-chg{font-family:var(--font-m);font-size:.7rem;margin-top:.4rem;}
+.mkt-live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pb 1.2s infinite;}
+/* WORLD CLOCK ROW */
+.world-clocks{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.55rem;margin-top:1.5rem;}
+.wc-item{background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:.65rem .85rem;text-align:center;}
+.wc-city{font-size:.7rem;color:var(--muted3);margin-bottom:.2rem;}
+.wc-time{font-family:var(--font-m);font-size:1rem;font-weight:500;color:var(--text);}
+.wc-date{font-size:.6rem;color:var(--muted2);margin-top:.1rem;}
+.wc-offset{font-family:var(--font-m);font-size:.58rem;color:var(--teal);margin-top:.15rem;}
+/* ═══ ECONOMIC CALENDAR ═══ */
+#ecocal{background:var(--bg2);border-top:1px solid var(--border2);}
+.cal-filters{display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:1.5rem;}
+.cf-btn{padding:.28rem .78rem;border-radius:5px;font-family:var(--font-m);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--muted3);transition:all .2s;}
+.cf-btn.on{background:rgba(0,245,212,.08);border-color:rgba(0,245,212,.2);color:var(--teal);}
+.cal-table{width:100%;border-collapse:collapse;border-radius:12px;overflow:hidden;border:1px solid var(--border2);}
+.cal-table th{background:var(--s2);padding:.78rem 1rem;text-align:left;font-family:var(--font-m);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted3);border-bottom:1px solid var(--border2);}
+.cal-table td{padding:.72rem 1rem;font-size:.8rem;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:top;}
+.cal-table tr:last-child td{border-bottom:none;}
+.cal-table tr:hover td{background:rgba(0,245,212,.03);}
+.cal-table tr.upcoming td{background:rgba(0,245,212,.025);}
+.cal-table tr.released td{opacity:.8;}
+.ev-impact{display:inline-flex;align-items:center;gap:2px;}
+.imp-dot{width:7px;height:7px;border-radius:50%;}
+.imp-hi{background:var(--red);}
+.imp-med{background:var(--gold);}
+.imp-lo{background:var(--green);}
+.ev-time{font-family:var(--font-m);font-size:.68rem;color:var(--muted3);}
+.ev-country{display:flex;align-items:center;gap:.4rem;font-size:.76rem;}
+.ev-flag{font-size:.95rem;}
+.ev-name{font-family:var(--font-d);font-weight:600;font-size:.82rem;}
+.ev-source{font-size:.62rem;color:var(--teal);font-family:var(--font-m);}
+.ev-source a{color:var(--teal);text-decoration:none;}
+.ev-source a:hover{text-decoration:underline;}
+.ev-actual{font-family:var(--font-m);font-size:.8rem;}
+.ev-actual.beat{color:var(--green);}
+.ev-actual.miss{color:var(--red);}
+.ev-actual.meet{color:var(--gold);}
+.ev-forecast{font-family:var(--font-m);font-size:.76rem;color:var(--muted3);}
+.ev-prev{font-family:var(--font-m);font-size:.76rem;color:var(--muted2);}
+.ev-status{display:inline-block;font-family:var(--font-m);font-size:.6rem;letter-spacing:.06em;padding:.14rem .45rem;border-radius:3px;text-transform:uppercase;}
+.es-upcoming{background:rgba(0,245,212,.1);color:var(--teal);border:1px solid rgba(0,245,212,.2);}
+.es-live{background:rgba(244,63,94,.1);color:var(--red);border:1px solid rgba(244,63,94,.2);animation:pulse-border 1s infinite;}
+@keyframes pulse-border{0%,100%{border-color:rgba(244,63,94,.2);}50%{border-color:rgba(244,63,94,.5);}}
+.es-released{background:rgba(255,255,255,.05);color:var(--muted3);border:1px solid var(--border2);}
+.ev-impact-block{background:var(--s1);border:1px solid var(--border2);border-radius:8px;padding:.65rem;margin:.35rem 0;font-size:.72rem;line-height:1.55;}
+.eib-title{font-family:var(--font-m);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:.25rem;}
+.impact-tag{display:inline-block;font-family:var(--font-m);font-size:.58rem;padding:.1rem .38rem;border-radius:3px;margin:.15rem .15rem 0 0;}
+.it-eq{background:rgba(59,130,246,.12);color:var(--blue);}
+.it-fx{background:rgba(139,92,246,.12);color:var(--violet);}
+.it-bd{background:rgba(245,158,11,.1);color:var(--gold);}
+.it-cmdty{background:rgba(249,115,22,.1);color:var(--orange);}
+/* GOV ANNOUNCEMENTS */
+#govfeed{background:var(--bg);border-top:1px solid var(--border2);}
+.gov-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2rem;}
+.gov-card{background:var(--s1);border:1px solid var(--border2);border-radius:12px;overflow:hidden;transition:all .3s;}
+.gov-card:hover{border-color:rgba(0,245,212,.18);transform:translateY(-2px);}
+.gc-head{padding:.85rem 1.1rem;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:.75rem;}
+.gc-flag{font-size:1.25rem;}
+.gc-org{font-family:var(--font-d);font-weight:700;font-size:.86rem;}
+.gc-url{font-family:var(--font-m);font-size:.6rem;color:var(--teal);margin-top:.1rem;}
+.gc-url a{color:var(--teal);text-decoration:none;}
+.gc-badge{margin-left:auto;font-family:var(--font-m);font-size:.56rem;padding:.12rem .42rem;border-radius:3px;text-transform:uppercase;letter-spacing:.06em;background:rgba(0,245,212,.08);color:var(--teal);border:1px solid rgba(0,245,212,.15);}
+.gc-body{padding:.85rem 1.1rem;}
+.gc-item{padding:.6rem 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.gc-item:last-child{border-bottom:none;}
+.gc-item-title{font-size:.8rem;font-weight:500;margin-bottom:.2rem;line-height:1.4;}
+.gc-item-meta{font-size:.66rem;color:var(--muted3);margin-bottom:.3rem;}
+.gc-impacts{display:flex;flex-wrap:wrap;gap:.25rem;}
+.gci{font-family:var(--font-m);font-size:.58rem;padding:.1rem .38rem;border-radius:3px;}
+.gi-up{background:rgba(16,185,129,.1);color:var(--green);}
+.gi-dn{background:rgba(244,63,94,.1);color:var(--red);}
+.gi-neutral{background:rgba(255,255,255,.06);color:var(--muted3);}
+/* COMMODITY TERMINAL */
+#commodities{background:var(--bg3);border-top:1px solid var(--border2);}
+.cmd-tabs{display:flex;gap:.4rem;margin-bottom:1.5rem;background:var(--s1);border-radius:9px;padding:.28rem;width:fit-content;}
+.cmd-tab{padding:.4rem 1.1rem;border-radius:7px;font-family:var(--font-d);font-weight:600;font-size:.78rem;cursor:pointer;transition:all .2s;border:none;background:transparent;color:var(--muted3);}
+.cmd-tab.on{background:var(--teal);color:#020409;}
+.cmd-content{display:none;}
+.cmd-content.on{display:block;}
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:.7rem;}
+.cmd-card{background:var(--s1);border:1px solid var(--border2);border-radius:10px;padding:.9rem;transition:all .3s;}
+.cmd-card:hover{border-color:rgba(0,245,212,.18);transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.4);}
+.cmd-icon{font-size:1.5rem;margin-bottom:.55rem;display:block;}
+.cmd-name{font-family:var(--font-d);font-weight:700;font-size:.85rem;margin-bottom:.12rem;}
+.cmd-sym{font-family:var(--font-m);font-size:.6rem;color:var(--muted3);}
+.cmd-price{font-family:var(--font-m);font-size:1.2rem;font-weight:500;color:var(--text);margin:.5rem 0 .15rem;}
+.cmd-chg{font-family:var(--font-m);font-size:.72rem;}
+.cmd-unit{font-size:.62rem;color:var(--muted2);margin-top:.12rem;font-family:var(--font-m);}
+.cmd-mini{height:32px;display:flex;align-items:flex-end;gap:1.5px;margin-top:.55rem;}
+.cmb{flex:1;border-radius:1.5px 1.5px 0 0;min-height:2px;}
+.cmd-meta{font-size:.66rem;color:var(--muted3);margin-top:.4rem;display:flex;justify-content:space-between;}
+/* FX MATRIX */
+#fxmatrix{background:var(--bg2);border-top:1px solid var(--border2);}
+.fx-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem;}
+.fx-panel{background:var(--s1);border:1px solid var(--border2);border-radius:12px;overflow:hidden;}
+.fx-head{background:var(--s2);padding:.85rem 1.1rem;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;}
+.fx-head-t{font-family:var(--font-d);font-weight:700;font-size:.88rem;}
+.fx-live{font-family:var(--font-m);font-size:.58rem;color:var(--green);display:flex;align-items:center;gap:.3rem;}
+.fx-rows{padding:.5rem 0;}
+.fx-row{display:grid;grid-template-columns:1.2fr 1fr 0.8fr 0.9fr 1.2fr;align-items:center;padding:.55rem 1.1rem;border-bottom:1px solid rgba(255,255,255,.03);font-size:.78rem;transition:background .2s;}
+.fx-row:hover{background:rgba(0,245,212,.03);}
+.fx-row:last-child{border-bottom:none;}
+.fx-pair{font-family:var(--font-m);font-weight:500;color:var(--text);}
+.fx-rate{font-family:var(--font-m);}
+.fx-chg{font-family:var(--font-m);font-size:.74rem;}
+.fx-vol{font-size:.7rem;color:var(--muted3);font-family:var(--font-m);}
+.fx-impact{font-size:.67rem;}
+.fx-impact-tag{display:inline-block;font-family:var(--font-m);font-size:.58rem;padding:.1rem .38rem;border-radius:3px;}
+.fi-rate{background:rgba(244,63,94,.1);color:var(--red);}
+.fi-rate-raise{background:rgba(16,185,129,.1);color:var(--green);}
+.fi-data{background:rgba(245,158,11,.1);color:var(--gold);}
+.fi-risk{background:rgba(139,92,246,.1);color:var(--violet);}
+/* BOND YIELDS */
+#bonds{background:var(--bg);border-top:1px solid var(--border2);}
+.bond-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-top:2rem;}
+.bond-card{background:var(--s1);border:1px solid var(--border2);border-radius:11px;padding:1rem;transition:all .3s;}
+.bond-card:hover{border-color:rgba(0,245,212,.18);}
+.bond-country{display:flex;align-items:center;gap:.5rem;font-family:var(--font-d);font-weight:700;font-size:.88rem;margin-bottom:.75rem;}
+.bond-flag{font-size:1.1rem;}
+.bond-curve{display:flex;align-items:flex-end;gap:3px;height:48px;margin-bottom:.65rem;}
+.bond-bar{flex:1;border-radius:2px 2px 0 0;min-height:3px;background:rgba(0,245,212,.3);}
+.bond-bar.inv{background:rgba(244,63,94,.4);}
+.bond-bar.norm{background:rgba(0,245,212,.4);}
+.bond-rows{display:flex;flex-direction:column;gap:.3rem;}
+.bond-row{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;padding:.22rem 0;}
+.bond-tenor{color:var(--muted3);}
+.bond-yield{font-family:var(--font-m);color:var(--teal);}
+.bond-chg{font-family:var(--font-m);font-size:.68rem;}
+.bond-signal{margin-top:.65rem;font-size:.7rem;padding:.45rem .65rem;border-radius:6px;line-height:1.5;}
+.bs-normal{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.15);color:var(--green);}
+.bs-inverted{background:rgba(244,63,94,.08);border:1px solid rgba(244,63,94,.15);color:var(--red);}
+.bs-flat{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.15);color:var(--gold);}
+/* AI IMPACT ANALYZER */
+#aianalyzer{background:var(--bg3);border-top:1px solid var(--border2);}
+.ai-layout{display:grid;grid-template-columns:1fr 1fr;gap:3rem;margin-top:2rem;}
+.ai-screen{background:var(--s1);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--glow),0 40px 80px rgba(0,0,0,.5);}
+.ai-topbar{background:var(--s2);border-bottom:1px solid var(--border2);padding:.65rem 1.1rem;display:flex;align-items:center;gap:.65rem;}
+.ai-dots{display:flex;gap:.3rem;}
+.aidot{width:10px;height:10px;border-radius:50%;}
+.dr{background:#ff5f57;}.dy{background:#febc2e;}.dg{background:#28c840;}
+.ai-url{background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:5px;padding:.2rem .7rem;font-family:var(--font-m);font-size:.62rem;color:var(--muted2);flex:1;max-width:280px;}
+.ai-live{margin-left:auto;display:flex;align-items:center;gap:.3rem;font-family:var(--font-m);font-size:.58rem;color:var(--green);}
+.lv-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pb 1.2s infinite;}
+.ai-body{padding:1.1rem;min-height:320px;display:flex;flex-direction:column;gap:.75rem;overflow-y:auto;max-height:420px;}
+.ai-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.2rem;}
+.ai-chip{background:var(--s2);border:1px solid var(--border2);border-radius:100px;padding:.24rem .72rem;font-size:.68rem;color:var(--muted3);cursor:pointer;transition:all .2s;font-family:var(--font-m);}
+.ai-chip:hover{background:rgba(0,245,212,.07);border-color:var(--border);color:var(--teal);}
+.ai-inp-row{display:flex;gap:.45rem;padding:.85rem 1.1rem 1.1rem;border-top:1px solid var(--border2);}
+.ai-inp{flex:1;background:var(--s2);border:1px solid var(--border2);color:var(--text);padding:.65rem .95rem;border-radius:8px;font-family:var(--font-b);font-size:.82rem;outline:none;transition:border-color .2s;}
+.ai-inp::placeholder{color:var(--muted);}
+.ai-inp:focus{border-color:var(--teal);}
+.ai-send{background:var(--teal);color:#020409;border:none;padding:.65rem 1.1rem;border-radius:8px;cursor:pointer;font-size:.82rem;transition:all .2s;flex-shrink:0;font-weight:700;font-family:var(--font-d);}
+.ai-send:hover{background:#00ffd9;box-shadow:var(--glow2);}
+.ai-send:disabled{opacity:.5;cursor:not-allowed;}
+.chat-msg{display:flex;gap:.6rem;align-items:flex-start;animation:fup .35s ease both;}
+.chat-msg.user{flex-direction:row-reverse;}
+.chat-av{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;font-family:var(--font-d);}
+.av-ai{background:linear-gradient(135deg,#00f5d4,#2563eb);color:#020409;}
+.av-user{background:var(--s3);border:1px solid var(--border2);}
+.chat-bubble{max-width:80%;padding:.6rem .85rem;border-radius:9px;font-size:.8rem;line-height:1.65;}
+.bubble-ai{background:var(--s2);border:1px solid var(--border2);}
+.bubble-user{background:rgba(0,245,212,.1);border:1px solid rgba(0,245,212,.18);}
+.thinking{display:flex;gap:4px;padding:.55rem .85rem;background:var(--s2);border:1px solid var(--border2);border-radius:9px;width:fit-content;}
+.thinking span{width:5px;height:5px;border-radius:50%;background:var(--teal);animation:bounce .8s ease-in-out infinite;}
+.thinking span:nth-child(2){animation-delay:.15s;}
+.thinking span:nth-child(3){animation-delay:.3s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-6px);}}
+/* WHY BETTER */
+#whybetter{background:var(--bg2);border-top:1px solid var(--border2);}
+.wb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:2.5rem;}
+.wb-card{background:var(--s1);border:1px solid var(--border2);border-radius:12px;padding:1.25rem;transition:all .3s;}
+.wb-card:hover{border-color:rgba(0,245,212,.2);transform:translateY(-3px);}
+.wb-card.bb{border-left:3px solid var(--red);background:linear-gradient(90deg,rgba(244,63,94,.05),var(--s1));}
+.wb-card.pn{border-left:3px solid var(--teal);background:linear-gradient(90deg,rgba(0,245,212,.05),var(--s1));}
+.wb-icon{font-size:1.6rem;margin-bottom:.65rem;display:block;}
+.wb-title{font-family:var(--font-d);font-weight:700;font-size:.92rem;margin-bottom:.35rem;}
+.wb-desc{font-size:.78rem;color:var(--muted3);line-height:1.6;}
+.wb-vs{background:var(--s1);border:1px solid var(--border2);border-radius:12px;padding:1.5rem;margin-top:2rem;}
+.vs-table{width:100%;border-collapse:collapse;}
+.vs-table th{font-family:var(--font-m);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted3);padding:.65rem 1rem;text-align:left;border-bottom:1px solid var(--border2);}
+.vs-table th.pn-col{color:var(--teal);}
+.vs-table td{padding:.62rem 1rem;font-size:.8rem;border-bottom:1px solid rgba(255,255,255,.03);}
+.vs-table tr:last-child td{border-bottom:none;}
+.vs-table td:first-child{color:var(--muted3);}
+.vs-chk{color:var(--teal);}
+.vs-cross{color:var(--muted);opacity:.4;}
+.vs-bold{font-family:var(--font-m);color:var(--teal);font-weight:500;}
+/* DATA LAYERS */
+#layers{background:var(--bg);border-top:1px solid var(--border2);}
+.lf-row{display:flex;gap:.4rem;flex-wrap:wrap;}
+.lf-b{padding:.26rem .72rem;border-radius:5px;font-family:var(--font-m);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--muted3);transition:all .2s;}
+.lf-b.on{background:rgba(0,245,212,.08);border-color:rgba(0,245,212,.2);color:var(--teal);}
+.lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:.75rem;margin-top:1.5rem;}
+.lcard{background:var(--s1);border:1px solid var(--border2);border-radius:11px;padding:1.05rem;transition:all .3s;position:relative;overflow:hidden;}
+.lcard::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 25% 25%,rgba(0,245,212,.04),transparent 65%);opacity:0;transition:.3s;}
+.lcard:hover{border-color:rgba(0,245,212,.18);transform:translateY(-3px);}
+.lcard:hover::before{opacity:1;}
+.lcard.hidden{display:none;}
+.li-ico{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;margin-bottom:.7rem;background:var(--s2);}
+.li-n{font-family:var(--font-d);font-weight:700;font-size:.83rem;margin-bottom:.2rem;}
+.li-d{font-size:.7rem;color:var(--muted3);line-height:1.5;}
+.ltag{display:inline-block;margin-top:.55rem;font-family:var(--font-m);font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;padding:.12rem .44rem;border-radius:3px;}
+.tc{background:rgba(0,245,212,.09);color:var(--teal);}
+.tp{background:rgba(245,158,11,.09);color:var(--gold);}
+.te{background:rgba(244,63,94,.09);color:var(--red);}
+/* PRICING */
+#pricing{background:var(--bg3);border-top:1px solid var(--border2);padding:5.5rem 3rem;}
+.p-inner{max-width:1100px;margin:0 auto;}
+.billing-row{display:flex;align-items:center;gap:.7rem;margin:1.3rem 0 2.6rem;font-size:.8rem;color:var(--muted3);}
+.ptoggle{width:38px;height:20px;background:var(--s3);border-radius:10px;border:1px solid var(--border2);cursor:pointer;position:relative;}
+.ptoggle.on{background:var(--teal2);}
+.ptk{position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:2px;left:2px;transition:transform .2s;}
+.ptoggle.on .ptk{transform:translateX(18px);}
+.schip{background:rgba(0,245,212,.1);color:var(--teal);font-family:var(--font-m);font-size:.56rem;padding:.1rem .42rem;border-radius:3px;letter-spacing:.06em;}
+.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:.85rem;}
+.plan{background:var(--s1);border:1px solid var(--border2);border-radius:14px;padding:1.5rem;display:flex;flex-direction:column;transition:all .3s;position:relative;overflow:hidden;}
+.plan::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.plan.ft{border-color:rgba(0,245,212,.22);background:linear-gradient(155deg,rgba(0,245,212,.05) 0%,var(--s1) 45%);}
+.plan.ft::after{background:linear-gradient(90deg,var(--teal),var(--blue));}
+.plan:hover{transform:translateY(-3px);box-shadow:0 20px 50px rgba(0,0,0,.5);}
+.p-badge{position:absolute;top:1.1rem;right:1.1rem;background:var(--teal);color:#020409;font-family:var(--font-m);font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;padding:.15rem .48rem;border-radius:3px;font-weight:700;}
+.p-name{font-family:var(--font-m);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.62rem;}
+.p-price{font-family:var(--font-d);font-size:2.35rem;font-weight:800;letter-spacing:-.05em;line-height:1;}
+.p-price sub{font-size:.82rem;font-weight:400;color:var(--muted3);letter-spacing:0;}
+.p-billing{font-family:var(--font-m);font-size:.63rem;color:var(--muted);margin:.16rem 0 .62rem;}
+.p-desc{font-size:.76rem;color:var(--muted3);line-height:1.55;padding-bottom:.62rem;border-bottom:1px solid var(--border2);margin-bottom:.62rem;}
+.p-feats{list-style:none;flex:1;margin-bottom:1.1rem;}
+.p-feats li{font-size:.73rem;padding:.24rem 0;color:var(--muted3);display:flex;align-items:flex-start;gap:.42rem;line-height:1.42;}
+.p-feats li::before{content:'✓';color:var(--teal);flex-shrink:0;}
+.p-feats li.off::before{content:'—';color:rgba(255,255,255,.12);}
+.p-feats li.off{color:rgba(255,255,255,.17);}
+.p-btn{width:100%;padding:.62rem;border-radius:8px;font-family:var(--font-d);font-weight:700;font-size:.78rem;cursor:pointer;transition:all .2s;border:1px solid var(--border2);background:transparent;color:var(--text);}
+.p-btn:hover{border-color:var(--teal);color:var(--teal);}
+.p-btn.solid{background:var(--teal);color:#020409;border-color:var(--teal);}
+.p-btn.solid:hover{background:#00ffd9;box-shadow:var(--glow2);}
+/* FAQ */
+#faq{background:var(--bg2);border-top:1px solid var(--border2);}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:2.25rem;}
+.fitem{background:var(--s1);border:1px solid var(--border2);border-radius:10px;overflow:hidden;}
+.fitem.open{border-color:rgba(0,245,212,.17);}
+.fq{padding:.95rem 1.15rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-family:var(--font-d);font-weight:700;font-size:.84rem;gap:.8rem;user-select:none;}
+.fq-icon{font-size:.88rem;color:var(--teal);transition:transform .3s;flex-shrink:0;}
+.fitem.open .fq-icon{transform:rotate(45deg);}
+.fa{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s;}
+.fitem.open .fa{max-height:200px;padding:.55rem 1.15rem .95rem;}
+.fa p{font-size:.78rem;color:var(--muted3);line-height:1.72;}
+/* CTA */
+#cta{padding:7.5rem 3rem;text-align:center;position:relative;overflow:hidden;}
+#cta::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:380px;background:radial-gradient(ellipse,rgba(0,245,212,.06) 0%,transparent 60%);pointer-events:none;}
+.cta-t{font-family:var(--font-d);font-size:clamp(2.1rem,4.2vw,3.6rem);font-weight:800;letter-spacing:-.04em;line-height:1.05;margin-bottom:1.1rem;}
+.cta-sub{color:var(--muted3);font-size:.94rem;max-width:430px;margin:0 auto 2.1rem;}
+.wform{display:flex;gap:.42rem;justify-content:center;max-width:420px;margin:0 auto;}
+.wform input{flex:1;background:var(--s1);border:1px solid var(--border2);color:var(--text);padding:.74rem .95rem;border-radius:8px;font-family:var(--font-b);font-size:.84rem;outline:none;transition:border-color .2s;}
+.wform input::placeholder{color:var(--muted);}
+.wform input:focus{border-color:var(--teal);}
+.wform button{background:var(--teal);color:#020409;border:none;padding:.74rem 1.3rem;border-radius:8px;font-family:var(--font-d);font-weight:700;font-size:.84rem;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.wform button:hover{background:#00ffd9;box-shadow:var(--glow2);}
+.wf-note{font-size:.7rem;color:var(--muted);margin-top:.62rem;}
+.sproof{display:flex;align-items:center;justify-content:center;gap:.9rem;margin-top:1.25rem;flex-wrap:wrap;}
+.spi{font-size:.72rem;color:var(--muted3);}
+/* FOOTER */
+footer{background:var(--bg);border-top:1px solid var(--border2);padding:2.5rem 3rem;display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:2rem;}
+.fb-brand p{font-size:.73rem;color:var(--muted3);line-height:1.65;max-width:205px;margin-top:.62rem;}
+.fc h5{font-family:var(--font-d);font-weight:700;font-size:.78rem;margin-bottom:.8rem;}
+.fc a{display:block;font-size:.73rem;color:var(--muted3);text-decoration:none;padding:.16rem 0;transition:color .2s;}
+.fc a:hover{color:var(--teal);}
+.f-bot{background:var(--bg);border-top:1px solid var(--border2);padding:1rem 3rem;display:flex;justify-content:space-between;align-items:center;font-size:.68rem;color:var(--muted2);}
+.f-bot a{color:var(--muted2);text-decoration:none;}
+.f-bot a:hover{color:var(--teal);}
+/* RESPONSIVE */
+@media(max-width:1100px){
+  #hero{grid-template-columns:1fr;gap:2rem;text-align:center;padding:9rem 1.5rem 4rem;}
+  #gwrap{width:320px;height:320px;margin:0 auto;}
+  .gr1{width:375px;height:375px;}.gr2{width:440px;height:440px;}
+  #cpanel{width:100%;right:-100%;}
+  .pgrid{grid-template-columns:1fr 1fr;}
+  .bond-grid{grid-template-columns:1fr 1fr;}
+  .fx-grid{grid-template-columns:1fr;}
+  .gov-grid{grid-template-columns:1fr;}
+  .wb-grid{grid-template-columns:1fr 1fr;}
+  .fgrid{grid-template-columns:1fr;}
+  footer{grid-template-columns:1fr 1fr;}
+  nav{padding:.8rem 1.5rem;}
+  .nl{display:none;}
+  .sw{padding:4rem 1.5rem;}
+  .ai-layout{grid-template-columns:1fr;}
+}
+@media(max-width:640px){
+  .pgrid,.bond-grid,.wb-grid{grid-template-columns:1fr;}
+  footer{grid-template-columns:1fr;}
+  .wform{flex-direction:column;}
+  #pricing{padding:4rem 1.25rem;}
+}
+</style>
+</head>
+<body>
+<div id="cur"></div>
+<div id="curR"></div>
+<div id="spbar"></div>
+
+<!-- CITY PANEL -->
+<div id="cpanel">
+  <div class="cph">
+    <div>
+      <div class="cpn" id="cp-name">Tokyo</div>
+      <div class="cpco" id="cp-country">Japan · Asia-Pacific</div>
+      <span id="cp-status" class="cpst st-ok">● Normal conditions</span>
+    </div>
+    <button class="cpclose" onclick="closePanel()">✕</button>
+  </div>
+  <div class="cpbody" id="cp-body"></div>
+</div>
+
+<nav id="nav">
+  <a class="logo" href="#"><span class="logo-orb"></span>&nbsp;Planet News</a>
+  <ul class="nl">
+    <li><a href="#mktclock">Markets</a></li>
+    <li><a href="#ecocal">Economic Calendar</a></li>
+    <li><a href="#commodities">Commodities</a></li>
+    <li><a href="#fxmatrix">FX</a></li>
+    <li><a href="#bonds">Bonds</a></li>
+    <li><a href="#aianalyzer">AI</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+  </ul>
+  <div class="nav-r">
+    <a class="nbtn" href="#cta">Sign in</a>
+    <a class="nbtn nbtn-p" href="#cta">Join Waitlist →</a>
+  </div>
+</nav>
+
+<div class="tick-bar" style="margin-top:58px;">
+  <div class="tick-tr" id="ticker"></div>
+</div>
+
+<canvas id="pcanvas"></canvas>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-l">
+    <div class="eyebrow"><span class="pdot"></span>&nbsp;Bloomberg at 27× less cost</div>
+    <h1>The intelligence terminal<br/>that <span class="grad"><span class="tw-w" id="tw"></span><span class="tw-c"></span></span><br/>Bloomberg can't match</h1>
+    <p class="hero-sub">Real-time government announcements. Economic calendar with AI impact analysis. Live commodity prices. Global market hours. Bond yields. FX matrix. All on an interactive 3D globe — at $99/month.</p>
+    <div class="hero-btns">
+      <a href="#cta" class="btn-p">Join the waitlist →</a>
+      <a href="#aianalyzer" class="btn-s">✦ Try AI Analyzer</a>
+      <a href="#ecocal" class="btn-s">📅 Economic Calendar</a>
+    </div>
+    <div class="trust-row">
+      <div class="t-avs">
+        <div class="t-av a1"></div><div class="t-av a2"></div>
+        <div class="t-av a3"></div><div class="t-av a4"></div>
+      </div>
+      <div class="t-txt"><strong id="wlcount">124 analysts</strong> already on the waitlist</div>
+    </div>
+  </div>
+  <div class="hero-r">
+    <div id="gwrap">
+      <div class="gr gr1"></div>
+      <div class="gr gr2"></div>
+      <canvas id="gc" width="450" height="450"></canvas>
+      <div class="glb-hint">🌍 Drag to spin · Click any city</div>
+    </div>
+  </div>
+</section>
+
+<div id="gtt">
+  <div class="gn" id="gtt-n"></div>
+  <div class="gr2b"><span>Market</span><span class="gv" id="gtt-m"></span></div>
+  <div class="gr2b"><span>Weather</span><span class="gv" id="gtt-w"></span></div>
+  <div class="gr2b"><span>Risk</span><span class="gv" id="gtt-r"></span></div>
+  <div class="gh">Click to open intelligence →</div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat"><span class="stat-n" data-t="195">0</span><span class="stat-l">Countries</span></div>
+  <div class="stat"><span class="stat-n" data-t="30">0</span><span class="stat-l">Data layers</span></div>
+  <div class="stat"><span class="stat-n" data-t="50">0</span><span class="stat-l">Commodity prices</span></div>
+  <div class="stat"><span class="stat-n" data-t="85">0</span><span class="stat-l">Currency pairs</span></div>
+  <div class="stat"><span class="stat-n" data-t="27" data-s="×">0</span><span class="stat-l">Cheaper than Bloomberg</span></div>
+  <div class="stat"><span class="stat-n" data-t="15" data-s="min">0</span><span class="stat-l">Update cycle</span></div>
+</div>
+
+<!-- ═══════════════════════════════════
+  GLOBAL MARKET CLOCK
+═══════════════════════════════════ -->
+<section id="mktclock">
+  <div class="sw">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:.5rem;flex-wrap:wrap;gap:1rem;">
+      <div class="rvl">
+        <p class="sec-l">// Global market hours</p>
+        <h2 class="sec-t">Which markets are open<br/>right now?</h2>
+      </div>
+      <div class="rvr" id="utc-clock" style="font-family:var(--font-m);font-size:1.1rem;color:var(--teal);background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:.5rem 1rem;"></div>
+    </div>
+    <div class="world-clocks rv" id="world-clocks"></div>
+    <div class="clock-grid rv" id="market-cards" style="margin-top:1.5rem;"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+  ECONOMIC CALENDAR
+═══════════════════════════════════ -->
+<section id="ecocal">
+  <div class="sw">
+    <div class="rv">
+      <p class="sec-l">// Economic calendar · Government releases</p>
+      <h2 class="sec-t">Every major economic release,<br/>with AI impact analysis</h2>
+      <p class="sec-sub" style="margin-bottom:1.5rem;">Sourced directly from official government and central bank websites. Includes impact on equities, FX, bonds, and commodities — before and after each release.</p>
+    </div>
+    <div class="cal-filters rv">
+      <button class="cf-btn on" onclick="filterCal('all',this)">All Events</button>
+      <button class="cf-btn" onclick="filterCal('high',this)">🔴 High Impact</button>
+      <button class="cf-btn" onclick="filterCal('medium',this)">🟡 Medium</button>
+      <button class="cf-btn" onclick="filterCal('low',this)">🟢 Low</button>
+      <button class="cf-btn" onclick="filterCal('upcoming',this)">⏰ Upcoming</button>
+      <button class="cf-btn" onclick="filterCal('released',this)">✅ Released</button>
+    </div>
+    <div class="rv" style="overflow-x:auto;">
+      <table class="cal-table" id="cal-table">
+        <thead><tr>
+          <th>Impact</th><th>Time (UTC)</th><th>Country</th><th>Event</th><th>Official Source</th><th>Actual</th><th>Forecast</th><th>Previous</th><th>Status</th>
+        </tr></thead>
+        <tbody id="cal-body"></tbody>
+      </table>
+    </div>
+    <div id="cal-impact-panel" style="margin-top:1.5rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+  GOVERNMENT ANNOUNCEMENTS
+═══════════════════════════════════ -->
+<section id="govfeed">
+  <div class="sw">
+    <div class="rv">
+      <p class="sec-l">// Government & central bank feed</p>
+      <h2 class="sec-t">Official announcements,<br/>impact-rated in real time</h2>
+      <p class="sec-sub" style="margin-bottom:2rem;">Aggregated directly from authorized government websites, central bank press rooms, and official statistical agencies — with AI-powered market impact ratings.</p>
+    </div>
+    <div class="gov-grid" id="gov-grid"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+  COMMODITY TERMINAL
+═══════════════════════════════════ -->
+<section id="commodities">
+  <div class="sw">
+    <div class="rv" style="margin-bottom:1.5rem;">
+      <p class="sec-l">// Commodity terminal</p>
+      <h2 class="sec-t">50+ live commodity prices,<br/>with geo-context</h2>
+      <p class="sec-sub">See commodity prices alongside the regions that produce them — tap any commodity to see which countries are affected and why.</p>
+    </div>
+    <div class="cmd-tabs rv">
+      <button class="cmd-tab on" onclick="switchCmd('energy',this)">⚡ Energy</button>
+      <button class="cmd-tab" onclick="switchCmd('metals',this)">🥇 Metals</button>
+      <button class="cmd-tab" onclick="switchCmd('agri',this)">🌾 Agriculture</button>
+      <button class="cmd-tab" onclick="switchCmd('softs',this)">☕ Softs</button>
+    </div>
+    <div id="cmd-energy" class="cmd-content on rv"><div class="cmd-grid" id="cg-energy"></div></div>
+    <div id="cmd-metals" class="cmd-content rv"><div class="cmd-grid" id="cg-metals"></div></div>
+    <div id="cmd-agri" class="cmd-content rv"><div class="cmd-grid" id="cg-agri"></div></div>
+    <div id="cmd-softs" class="cmd-content rv"><div class="cmd-grid" id="cg-softs"></div></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+  FX MATRIX
+═══════════════════════════════════ -->
+<section id="fxmatrix">
+  <div class="sw">
+    <div class="rv" style="margin-bottom:1.5rem;">
+      <p class="sec-l">// Foreign exchange matrix</p>
+      <h2 class="sec-t">85 currency pairs with<br/>economic event impact</h2>
+      <p class="sec-sub">See how government announcements, central bank decisions, and economic data releases are moving exchange rates — in real time.</p>
+    </div>
+    <div class="fx-grid rv" id="fx-panels"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+  BOND YIELDS
+═══════════════════════════════════ -->
+<section id="bonds">
+  <div class="sw">
+    <div class="rv" style="margin-bottom:1.5rem;">
+      <p class="sec-l">// Sovereign bond yields</p>
+      <h2 class="sec-t">Global yield curves &<br/>recession signals</h2>
+      <p class="sec-sub">Track government bond yields across 20+ countries. Inverted yield curves, spread changes, and central bank policy signals — all in one view.</p>
+    </div>
+    <div class="bond-grid rv" id="bond-grid"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+  AI IMPACT ANALYZER
+═══════════════════════════════════ -->
+<section id="aianalyzer">
+  <div class="sw">
+    <div class="ai-layout">
+      <div class="rvl">
+        <p class="sec-l">✦ AI Impact Analyzer</p>
+        <h2 class="sec-t">Ask what any economic<br/>event means for markets</h2>
+        <p class="sec-sub" style="margin-bottom:1.5rem;">Paste any government announcement, economic release, or central bank statement. Get instant AI analysis of impact on equities, currencies, bonds, and commodities.</p>
+        <div style="display:flex;flex-direction:column;gap:.65rem;margin-top:1rem;">
+          <div style="background:var(--s1);border:1px solid var(--border2);border-radius:9px;padding:.85rem;">
+            <div style="font-family:var(--font-m);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:.35rem;">What it analyzes</div>
+            <div style="font-size:.78rem;color:var(--muted3);line-height:1.6;">Fed rate decisions · ECB statements · CPI/PPI releases · GDP prints · NFP data · Central bank minutes · Treasury announcements · Trade balance data · Any official government release</div>
+          </div>
+          <div style="background:var(--s1);border:1px solid var(--border2);border-radius:9px;padding:.85rem;">
+            <div style="font-family:var(--font-m);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:.35rem;">Output includes</div>
+            <div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.3rem;">
+              <span class="impact-tag it-eq">Equities impact</span>
+              <span class="impact-tag it-fx">FX impact</span>
+              <span class="impact-tag it-bd">Bond impact</span>
+              <span class="impact-tag it-cmdty">Commodity impact</span>
+              <span class="impact-tag" style="background:rgba(16,185,129,.1);color:var(--green);">Sector winners</span>
+              <span class="impact-tag" style="background:rgba(244,63,94,.1);color:var(--red);">Sector losers</span>
+              <span class="impact-tag" style="background:rgba(139,92,246,.1);color:var(--violet);">Geo risk</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rvr">
+        <div class="ai-screen">
+          <div class="ai-topbar">
+            <div class="ai-dots"><div class="aidot dr"></div><div class="aidot dy"></div><div class="aidot dg"></div></div>
+            <div class="ai-url">app.planetnews.io/ai-analyzer</div>
+            <div class="ai-live"><span class="lv-dot"></span>AI Ready</div>
+          </div>
+          <div class="ai-body" id="ai-body">
+            <div style="font-family:var(--font-m);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.15rem;">Try a quick analysis</div>
+            <div class="ai-chips" id="ai-chips">
+              <div class="ai-chip" onclick="askAI('The Federal Reserve kept interest rates at 4.25-4.50% at its March 2026 meeting. What is the impact on markets?')">🏦 Fed holds rates 4.5%</div>
+              <div class="ai-chip" onclick="askAI('US CPI came in at 3.2% year-on-year in February 2026, beating the forecast of 2.9%. What does this mean for equities, bonds, FX and commodities?')">📊 CPI beats forecast</div>
+              <div class="ai-chip" onclick="askAI('US Non-Farm Payrolls added 185,000 jobs in February 2026, beating the forecast of 160,000. Unemployment remained at 3.9%. Analyze the market impact.')">👷 NFP beats estimate</div>
+              <div class="ai-chip" onclick="askAI('ECB cut rates by 25bps to 3.5% in March 2026. Analyze the full market impact across equities, EUR/USD, European bonds, and commodities.')">🇪🇺 ECB cuts 25bps</div>
+              <div class="ai-chip" onclick="askAI('China Q4 2025 GDP growth came in at 4.6%, missing the 5.0% target. Analyze impact on global markets, commodities especially iron ore and copper, and Asian equities.')">🇨🇳 China GDP miss</div>
+              <div class="ai-chip" onclick="askAI('OPEC+ agreed to maintain production cuts of 2.2 million barrels per day through June 2026. What is the impact on oil prices, energy stocks, airline stocks, and inflation?')">🛢️ OPEC+ holds cuts</div>
+            </div>
+          </div>
+          <div class="ai-inp-row">
+            <input class="ai-inp" id="ai-input" type="text" placeholder="Paste any gov announcement or ask about an economic event…" onkeydown="if(event.key==='Enter')sendAI()"/>
+            <button class="ai-send" id="ai-btn" onclick="sendAI()">Analyze →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════
+  WHY BETTER THAN BLOOMBERG
+═══════════════════════════════════ -->
+<section id="whybetter">
+  <div class="sw">
+    <div class="rv" style="text-align:center;margin-bottom:2.5rem;">
+      <p class="sec-l" style="justify-content:center;display:flex;">// Planet News vs Bloomberg Terminal</p>
+      <h2 class="sec-t" style="text-align:center;">10 ways Planet News beats Bloomberg<br/>at a fraction of the cost</h2>
+    </div>
+    <div class="wb-grid rv" id="wb-grid"></div>
+    <div class="wb-vs rv" style="margin-top:2rem;">
+      <table class="vs-table">
+        <thead><tr>
+          <th>Feature</th>
+          <th>Bloomberg Terminal</th>
+          <th>Esri ArcGIS</th>
+          <th>Palantir</th>
+          <th class="pn-col">🌍 Planet News</th>
+        </tr></thead>
+        <tbody id="vs-body"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- DATA LAYERS -->
+<section id="layers">
+  <div class="sw">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+      <div class="rvl"><p class="sec-l">// 30 data categories</p><h2 class="sec-t">Everything in one terminal</h2></div>
+      <div class="rvr lf-row">
+        <button class="lf-b on" onclick="filterL('all',this)">All</button>
+        <button class="lf-b" onclick="filterL('core',this)">Core</button>
+        <button class="lf-b" onclick="filterL('pro',this)">Pro</button>
+        <button class="lf-b" onclick="filterL('ent',this)">Enterprise</button>
+      </div>
+    </div>
+    <div class="lgrid rv" id="lgrid"></div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="p-inner">
+    <div class="rv">
+      <p class="sec-l">// Pricing</p>
+      <h2 class="sec-t">One subscription.<br/>Everything included.</h2>
+      <p class="sec-sub">All the data modules on this page — market clock, economic calendar, government announcements, commodities, FX, bonds, AI analyzer — included in every plan.</p>
+      <div class="billing-row">
+        <span>Monthly</span>
+        <div class="ptoggle on" id="p-toggle" onclick="toggleBilling()"><div class="ptk"></div></div>
+        <span>Annual</span><span class="schip">Save 20%</span>
+      </div>
+    </div>
+    <div class="pgrid" id="pgrid"></div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="sw">
+    <div class="rv"><p class="sec-l">// FAQ</p><h2 class="sec-t">Common questions</h2></div>
+    <div class="fgrid rv" id="fgrid"></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="cta-t rv">Start for free.<br/>Beat Bloomberg tomorrow.</div>
+  <p class="cta-sub rv">Join the waitlist. Get 3 months free on any paid plan. Lock in launch pricing forever.</p>
+  <form class="wform rv" onsubmit="submitWL(event)">
+    <input type="email" placeholder="your@email.com" required id="cta-email"/>
+    <button type="submit" id="cta-btn">Secure my spot →</button>
+  </form>
+  <p class="wf-note rv" id="wl-note">No credit card · Free tier forever · <span id="wlc2">124</span> analysts waiting</p>
+  <div class="sproof rv">
+    <span class="spi">🔐 SOC 2 ready</span>
+    <span class="spi">🌍 195 countries</span>
+    <span class="spi">📅 Economic calendar</span>
+    <span class="spi">🛢️ 50+ commodities</span>
+    <span class="spi">💱 85 FX pairs</span>
+    <span class="spi">🤖 AI impact analysis</span>
+  </div>
+</section>
+
+<footer>
+  <div class="fb-brand"><a class="logo" href="#"><span class="logo-orb"></span>&nbsp;Planet News</a><p>The intelligence terminal for the global economy. Real-time. Geo-contextual. Affordable.</p></div>
+  <div class="fc"><h5>Terminal</h5><a href="#">Globe Explorer</a><a href="#">Economic Calendar</a><a href="#">Commodities</a><a href="#">FX Matrix</a><a href="#">Bond Yields</a><a href="#">AI Analyzer</a></div>
+  <div class="fc"><h5>Company</h5><a href="#">About</a><a href="#">Blog</a><a href="#">Careers</a><a href="#">Press</a><a href="#">Contact</a></div>
+  <div class="fc"><h5>Legal</h5><a href="#">Privacy Policy</a><a href="#">Terms of Service</a><a href="#">Data Sources</a><a href="#">API Docs</a></div>
+</footer>
+<div class="f-bot">
+  <span>© 2026 Planet News · All rights reserved</span>
+  <div style="display:flex;gap:1.3rem;"><a href="#">Twitter/X</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div>
+</div>
+
+<script>
+// ══════════════════════════
+// CURSOR
+// ══════════════════════════
+const cur=document.getElementById('cur'),curR=document.getElementById('curR');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function aR(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;curR.style.left=rx+'px';curR.style.top=ry+'px';requestAnimationFrame(aR);})();
+document.querySelectorAll('a,button,.lcard,.plan,.fq,.cmd-tab,.cf-btn,.ai-chip,.mkt-card,.cmd-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('cb'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('cb'));
+});
+
+// SCROLL PROGRESS + NAV
+window.addEventListener('scroll',()=>{
+  document.getElementById('spbar').style.width=(window.scrollY/(document.body.scrollHeight-window.innerHeight)*100)+'%';
+  document.getElementById('nav').classList.toggle('stuck',window.scrollY>60);
+});
+
+// ══════════════════════════
+// PARTICLES
+// ══════════════════════════
+const pc=document.getElementById('pcanvas');
+const pctx=pc.getContext('2d');
+let PW=window.innerWidth,PH=window.innerHeight;
+pc.width=PW;pc.height=PH;
+window.addEventListener('resize',()=>{PW=window.innerWidth;PH=window.innerHeight;pc.width=PW;pc.height=PH;});
+const stars=Array.from({length:160},()=>({x:Math.random()*PW,y:Math.random()*PH,r:Math.random()*.85+.2,o:Math.random()*.45+.08,s:Math.random()*.3+.05}));
+(function ap(){pctx.clearRect(0,0,PW,PH);stars.forEach(s=>{s.o+=s.s*.014;if(s.o>.55||s.o<.08)s.s*=-1;pctx.beginPath();pctx.arc(s.x,s.y,s.r,0,Math.PI*2);pctx.fillStyle=`rgba(0,245,212,${s.o})`;pctx.fill();});requestAnimationFrame(ap);})();
+
+// ══════════════════════════
+// TYPEWRITER
+// ══════════════════════════
+const words=['beats Bloomberg','owns the globe','knows every market','sees every risk'];
+let wi=0,ci=0,del=false;
+const tw=document.getElementById('tw');
+function type(){
+  const w=words[wi];
+  if(!del){tw.textContent=w.slice(0,++ci);if(ci===w.length){del=true;setTimeout(type,2400);return;}}
+  else{tw.textContent=w.slice(0,--ci);if(ci===0){del=false;wi=(wi+1)%words.length;}}
+  setTimeout(type,del?46:90);
+}
+type();
+
+// ══════════════════════════
+// TICKER
+// ══════════════════════════
+const tks=[
+  ['S&P 500','5,842','up','▲+0.82%'],['Nikkei','39,412','up','▲+1.22%'],['Brent','$81.40','dn','▼-0.34%'],
+  ['Gold','$2,381','up','▲+0.44%'],['EUR/USD','1.0842','up','▲+0.11%'],['USD/JPY','148.52','dn','▼-0.22%'],
+  ['WTI','$77.82','dn','▼-0.28%'],['BTC','$68,240','up','▲+2.1%'],['FTSE','8,105','dn','▼-0.18%'],
+  ['Copper','$4.18/lb','up','▲+0.55%'],['Silver','$28.42','up','▲+0.31%'],['NatGas','$2.84','dn','▼-1.2%'],
+  ['Wheat','$543/bu','dn','▼-0.8%'],['Iron Ore','$108/t','dn','▼-0.4%'],['VIX','14.82','dn','▼-3.2%'],
+  ['Fed Rate','4.50%','hi','Unchanged'],['ECB Rate','3.75%','hi','Unchanged'],
+  ['US 10Y','4.42%','warn','▲+2bps'],['Lagos','🔴 Risk:5.8','warn','Monitor'],['Tokyo','22°C','hi','⛅Partly Cloudy'],
+];
+const tkEl=document.getElementById('ticker');
+[...tks,...tks].forEach(t=>{
+  const s=document.createElement('span');s.className='ti';
+  s.innerHTML=`<span style="color:var(--muted3)">${t[0]}</span><span class="${t[2]}">&nbsp;${t[1]}&nbsp;${t[3]}</span><span style="opacity:.25;margin:0 .3rem">│</span>`;
+  tkEl.appendChild(s);
+});
+
+// ══════════════════════════
+// GLOBE
+// ══════════════════════════
+const cities=[
+  {name:'New York',country:'United States',lat:40.7,lon:-74.0,market:'S&P 500 ▲+0.82%',weather:'18°C ☀ Sunny',risk:'Low · 1.8/10',col:'#00f5d4',events:['Fed holds rates at 4.5% — signals 2 cuts in 2026','US CPI beats at 3.2% vs 2.9% forecast','NYSE reports record daily volume this week']},
+  {name:'London',country:'United Kingdom',lat:51.5,lon:-.1,market:'FTSE 100 ▼-0.18%',weather:'12°C ⛅ Cloudy',risk:'Low · 2.1/10',col:'#00f5d4',events:['BoE holds rates at 5.25% — hawkish tone','UK CPI falls to 2.8% — below 3.0% forecast','ONS: UK GDP flat in Q4 2025 — recession fears ease']},
+  {name:'Tokyo',country:'Japan',lat:35.7,lon:139.7,market:'Nikkei ▲+1.22%',weather:'22°C ⛅ Cloudy',risk:'Low · 2.4/10',col:'#00f5d4',events:['BoJ signals exit from ultra-loose policy','Japan CPI rises to 2.8% — highest since 1992','USD/JPY falls as BoJ hints at rate hike']},
+  {name:'Dubai',country:'UAE',lat:25.2,lon:55.3,market:'DFM ▲+0.55%',weather:'38°C 🌫 Haze',risk:'Moderate · 3.9/10',col:'#f59e0b',events:['UAE announces $1.5T sovereign wealth fund expansion','OPEC+ holds production cuts through mid-2026','Dubai real estate +18% YoY — record transactions']},
+  {name:'São Paulo',country:'Brazil',lat:-23.5,lon:-46.6,market:'Bovespa ▲+0.9%',weather:'28°C ⛈ Storms',risk:'Moderate · 4.2/10',col:'#f59e0b',events:['Brazil GDP Q4: +3.4% vs 2.9% consensus','BCB holds Selic rate at 12.25%','BRL/USD recovers on strong export data']},
+  {name:'Lagos',country:'Nigeria',lat:6.5,lon:3.4,market:'NGX ▲+1.4%',weather:'32°C 💧 Humid',risk:'Elevated · 5.8/10',col:'#f59e0b',events:['CBN raises MPR to 25.0% — inflation fight','IMF raises Nigeria 2026 GDP forecast to 3.8%','Naira holds above 1,600/USD — third week']},
+  {name:'Singapore',country:'Singapore',lat:1.3,lon:103.8,market:'STI ▲+0.35%',weather:'30°C 🌫 Hazy',risk:'Low · 1.6/10',col:'#00f5d4',events:['MAS holds monetary policy settings steady','Port of Singapore sets record container throughput','SGD/USD holds 0.74 on strong trade data']},
+  {name:'Nairobi',country:'Kenya',lat:-1.3,lon:36.8,market:'NSE ▼-0.6%',weather:'24°C ⛅ Partly Cloudy',risk:'High · 6.4/10',col:'#f43f5e',events:['Kenya shilingi hits record low vs USD — 152','IMF disbursement delayed — fiscal concerns','Political unrest: opposition rally planned Thurs']},
+  {name:'Shanghai',country:'China',lat:31.2,lon:121.5,market:'SSE ▲+0.45%',weather:'19°C 🌤 Cloudy',risk:'Low · 2.6/10',col:'#00f5d4',events:['NBS: China Q4 GDP +4.6% — misses 5.0% target','PBOC cuts RRR by 50bps — stimulus signal','CNY steady — PBOC sets mid-point 7.1050']},
+  {name:'Frankfurt',country:'Germany',lat:50.1,lon:8.7,market:'DAX ▲+0.32%',weather:'10°C 🌧 Rain',risk:'Low · 2.0/10',col:'#00f5d4',events:['ECB cuts 25bps to 3.5% — EUR/USD falls','Destatis: German industrial output -0.4% MoM','IFO Business Climate improves for 3rd month']},
+];
+const cvs=document.getElementById('gc');
+const gctx=cvs.getContext('2d');
+const GW=450,GH=450,GCX=225,GCY=225,GR=GW*.43;
+let grot=0,ghov=null,gdrag=false,gLX=0;
+const gdots=[];
+for(let la=-80;la<=80;la+=4.8)for(let lo=-180;lo<=180;lo+=4.8)if(Math.random()>.5)gdots.push({la,lo,r:Math.random()>.9?2:1.1});
+const arcs=[{f:0,t:1},{f:1,t:2},{f:0,t:4},{f:3,t:5},{f:2,t:7},{f:6,t:9},{f:1,t:8},{f:5,t:7},{f:0,t:9},{f:2,t:6}];
+let arcT=0;
+function gproj(lat,lon){
+  const la=lat*Math.PI/180,lo=lon*Math.PI/180+grot;
+  const x=Math.cos(la)*Math.sin(lo),y=Math.sin(la),z=Math.cos(la)*Math.cos(lo);
+  return{x:GCX+GR*x,y:GCY-GR*y,z};
+}
+function drawArc(p1,p2,prog,col){
+  if(p1.z<0||p2.z<0)return;
+  const cx=(p1.x+p2.x)/2,cy=(p1.y+p2.y)/2;
+  const dist=Math.hypot(p2.x-p1.x,p2.y-p1.y);
+  const start=Math.max(0,prog-.28),end=Math.min(1,prog);
+  gctx.save();gctx.beginPath();
+  for(let t=start;t<=end;t+=.02){
+    const bx=(1-t)*(1-t)*p1.x+2*(1-t)*t*cx+t*t*p2.x;
+    const by=(1-t)*(1-t)*p1.y+2*(1-t)*t*(cy-dist*.32)+t*t*p2.y;
+    t===start?gctx.moveTo(bx,by):gctx.lineTo(bx,by);
+  }
+  const a=(end-start)/.28;
+  gctx.strokeStyle=col+Math.floor(a*140).toString(16).padStart(2,'0');
+  gctx.lineWidth=.9;gctx.stroke();
+  const bt=end;
+  const bx=(1-bt)*(1-bt)*p1.x+2*(1-bt)*bt*cx+bt*bt*p2.x;
+  const by=(1-bt)*(1-bt)*p1.y+2*(1-bt)*bt*(cy-dist*.32)+bt*bt*p2.y;
+  gctx.beginPath();gctx.arc(bx,by,2.2,0,Math.PI*2);gctx.fillStyle=col;gctx.shadowColor=col;gctx.shadowBlur=6;gctx.fill();
+  gctx.restore();
+}
+function drawGlobe(){
+  gctx.clearRect(0,0,GW,GH);
+  gctx.save();gctx.beginPath();gctx.arc(GCX,GCY,GR,0,Math.PI*2);gctx.clip();
+  const bg=gctx.createRadialGradient(GCX-GR*.28,GCY-GR*.28,0,GCX,GCY,GR);
+  bg.addColorStop(0,'#0d2245');bg.addColorStop(.55,'#071530');bg.addColorStop(1,'#020a1c');
+  gctx.fillStyle=bg;gctx.fillRect(0,0,GW,GH);
+  gctx.lineWidth=.32;gctx.strokeStyle='rgba(0,245,212,.04)';
+  for(let la=-80;la<=80;la+=20){gctx.beginPath();let f=true;for(let lo=-180;lo<=180;lo+=3){const p=gproj(la,lo);if(p.z>0){f?gctx.moveTo(p.x,p.y):gctx.lineTo(p.x,p.y);f=false;}else f=true;}gctx.stroke();}
+  for(let lo=-180;lo<=180;lo+=20){gctx.beginPath();let f=true;for(let la=-90;la<=90;la+=3){const p=gproj(la,lo);if(p.z>0){f?gctx.moveTo(p.x,p.y):gctx.lineTo(p.x,p.y);f=false;}else f=true;}gctx.stroke();}
+  gdots.forEach(d=>{const p=gproj(d.la,d.lo);if(p.z>0){gctx.beginPath();gctx.arc(p.x,p.y,d.r,0,Math.PI*2);gctx.fillStyle=`rgba(0,245,212,${(.25+p.z*.65)*.5})`;gctx.fill();}});
+  gctx.restore();
+  const atm=gctx.createRadialGradient(GCX,GCY,GR*.88,GCX,GCY,GR*1.15);
+  atm.addColorStop(0,'rgba(0,245,212,.09)');atm.addColorStop(.45,'rgba(37,99,235,.05)');atm.addColorStop(1,'transparent');
+  gctx.beginPath();gctx.arc(GCX,GCY,GR*1.15,0,Math.PI*2);gctx.fillStyle=atm;gctx.fill();
+  arcT=(arcT+.0035)%1;
+  arcs.forEach((a,i)=>{
+    const p1=gproj(cities[a.f].lat,cities[a.f].lon);
+    const p2=gproj(cities[a.t].lat,cities[a.t].lon);
+    const off=(arcT+(i/arcs.length))%1;
+    drawArc(p1,p2,off,i%2===0?'#00f5d4':'#60a5fa');
+  });
+  cities.forEach((c,i)=>{
+    const p=gproj(c.lat,c.lon);
+    if(p.z>.05){
+      const isH=ghov===i,pulse=(Math.sin(Date.now()*.002+i*.9)+1)*.5;
+      gctx.save();
+      gctx.beginPath();gctx.arc(p.x,p.y,isH?20:12+pulse*4,0,Math.PI*2);gctx.strokeStyle=c.col+(isH?'44':'22');gctx.lineWidth=isH?1.5:1;gctx.stroke();
+      gctx.beginPath();gctx.arc(p.x,p.y,isH?8:4.5,0,Math.PI*2);gctx.strokeStyle=c.col+'65';gctx.lineWidth=1;gctx.stroke();
+      gctx.beginPath();gctx.arc(p.x,p.y,isH?4:2.8,0,Math.PI*2);gctx.fillStyle=c.col;if(isH){gctx.shadowColor=c.col;gctx.shadowBlur=14;}gctx.fill();
+      if(isH){gctx.font="600 10px 'DM Sans',sans-serif";gctx.fillStyle=c.col;gctx.shadowColor='transparent';gctx.fillText(c.name,p.x+12,p.y-7);}
+      gctx.restore();
+    }
+  });
+  const spec=gctx.createRadialGradient(GCX-GR*.42,GCY-GR*.38,0,GCX,GCY,GR);
+  spec.addColorStop(0,'rgba(255,255,255,.05)');spec.addColorStop(.5,'transparent');
+  gctx.save();gctx.beginPath();gctx.arc(GCX,GCY,GR,0,Math.PI*2);gctx.clip();gctx.fillStyle=spec;gctx.fillRect(0,0,GW,GH);gctx.restore();
+  if(!gdrag)grot+=.002;
+  requestAnimationFrame(drawGlobe);
+}
+drawGlobe();
+function ghit(ex,ey){
+  const rect=cvs.getBoundingClientRect();
+  const sx=GW/rect.width,sy=GH/rect.height;
+  const cx=(ex-rect.left)*sx,cy=(ey-rect.top)*sy;
+  for(let i=0;i<cities.length;i++){const p=gproj(cities[i].lat,cities[i].lon);if(p.z>.05&&Math.hypot(cx-p.x,cy-p.y)<18)return i;}
+  return null;
+}
+cvs.addEventListener('mousemove',e=>{
+  if(gdrag){grot+=(e.clientX-gLX)*.005;gLX=e.clientX;return;}
+  const h=ghit(e.clientX,e.clientY);ghov=h;cvs.style.cursor=h!==null?'pointer':'grab';
+  const tt=document.getElementById('gtt');
+  if(h!==null){
+    const c=cities[h];
+    tt.style.display='block';tt.style.left=(e.clientX+22)+'px';tt.style.top=(e.clientY-20)+'px';
+    document.getElementById('gtt-n').textContent=`${c.name}, ${c.country}`;
+    document.getElementById('gtt-m').textContent=c.market;
+    document.getElementById('gtt-w').textContent=c.weather;
+    document.getElementById('gtt-r').textContent=c.risk;
+  } else tt.style.display='none';
+});
+cvs.addEventListener('mousedown',e=>{gdrag=true;gLX=e.clientX;cvs.style.cursor='grabbing';});
+window.addEventListener('mouseup',()=>gdrag=false);
+cvs.addEventListener('click',e=>{const h=ghit(e.clientX,e.clientY);if(h!==null)openPanel(cities[h]);});
+
+function openPanel(city){
+  document.getElementById('cp-name').textContent=city.name;
+  document.getElementById('cp-country').textContent=city.country;
+  const st=document.getElementById('cp-status');
+  const rv=parseFloat(city.risk);
+  if(rv>=5){st.className='cpst st-hi';st.textContent='● Elevated risk';}
+  else if(rv>=3.5){st.className='cpst st-warn';st.textContent='● Monitor';}
+  else{st.className='cpst st-ok';st.textContent='● Normal';}
+  const wxI={'Sunny':'☀️','Cloud':'⛅','Storm':'⛈️','Haze':'🌫️','Hazy':'🌫️','Humid':'🌡️','Rain':'🌧️','Partly':'🌤️'}
+  const wxKey=Object.keys(wxI).find(k=>city.weather.includes(k));
+  document.getElementById('cp-body').innerHTML=`
+    <div class="cps"><div class="cpst2">Weather</div>
+      <div class="wx-c"><div class="wx-ico">${wxKey?wxI[wxKey]:'🌤️'}</div>
+        <div class="wx-tmp">${city.weather.split('°')[0]}°C</div>
+        <div class="wx-desc">${city.weather.split(' ').slice(1).join(' ')}</div>
+        <div class="wx-grid"><div class="wx-cell">Humidity<strong>${50+Math.floor(Math.random()*30)}%</strong></div><div class="wx-cell">Wind<strong>${8+Math.floor(Math.random()*15)}km/h</strong></div><div class="wx-cell">UV<strong>${3+Math.floor(Math.random()*5)}</strong></div></div>
+      </div></div>
+    <div class="cps"><div class="cpst2">Markets</div>
+      <div class="cpc">
+        <div class="cpcr"><span class="cpcl">Local Index</span><span class="cpcv">${city.market}</span></div>
+        <div class="cpcr"><span class="cpcl">Currency trend</span><span class="cpcv g">Stable</span></div>
+        <div class="cpcr"><span class="cpcl">Vol vs 30d</span><span class="cpcv">+${(Math.random()*20).toFixed(1)}%</span></div>
+        <div class="cpcr"><span class="cpcl">Central Bank Rate</span><span class="cpcv">${(Math.random()*8+1).toFixed(2)}%</span></div>
+      </div></div>
+    <div class="cps"><div class="cpst2">Risk & Economics</div>
+      <div class="cpc">
+        <div class="cpcr"><span class="cpcl">Risk Score</span><span class="cpcv ${rv>=5?'o':rv>=3.5?'o':'g'}">${city.risk}</span></div>
+        <div class="cpcr"><span class="cpcl">GDP Growth</span><span class="cpcv g">+${(1.5+Math.random()*4).toFixed(1)}%</span></div>
+        <div class="cpcr"><span class="cpcl">Inflation (CPI)</span><span class="cpcv ${Math.random()>.5?'o':''}">${(1.5+Math.random()*5).toFixed(1)}%</span></div>
+        <div class="cpcr"><span class="cpcl">Unemployment</span><span class="cpcv">${(3+Math.random()*8).toFixed(1)}%</span></div>
+      </div>
+      <div style="margin-top:.55rem;">
+        ${[['Political',.15+Math.random()*.45],['Security',.2+Math.random()*.5],['Economic',.12+Math.random()*.4]].map(([n,v])=>`
+        <div style="margin-bottom:.35rem;"><div class="rlbl"><span style="color:var(--muted3)">${n}</span><span style="font-family:var(--font-m);color:var(--teal)">${(v*10).toFixed(1)}/10</span></div>
+        <div class="rbar"><div class="rfill" style="width:${v*100}%;background:${v>.55?'var(--gold)':v>.4?'var(--teal)':'var(--green)'};"></div></div></div>`).join('')}
+      </div></div>
+    <div class="cps"><div class="cpst2">Latest Intelligence</div>
+      ${city.events.map((ev,i)=>`<div class="cni"><div class="cni-cat" style="color:${i===0?'var(--red)':i===1?'var(--gold)':'var(--teal)'};">● ${i===0?'Breaking':'Update'}</div><div class="cni-t">${ev}</div><div class="cni-m">${1+Math.floor(Math.random()*10)}h ago · AI-synthesized</div></div>`).join('')}
+    </div>`;
+  document.getElementById('cpanel').classList.add('open');
+}
+function closePanel(){document.getElementById('cpanel').classList.remove('open');}
+
+// ══════════════════════════
+// MARKET CLOCK
+// ══════════════════════════
+const markets=[
+  {flag:'🇺🇸',name:'NYSE / NASDAQ',idx:'S&P 500',open:'13:30',close:'20:00',tz:-5,chg:'+0.82%',dir:'up',idxVal:'5,842'},
+  {flag:'🇬🇧',name:'London (LSE)',idx:'FTSE 100',open:'08:00',close:'16:30',tz:0,chg:'-0.18%',dir:'dn',idxVal:'8,105'},
+  {flag:'🇩🇪',name:'Frankfurt (XETRA)',idx:'DAX',open:'08:00',close:'17:30',tz:1,chg:'+0.32%',dir:'up',idxVal:'18,340'},
+  {flag:'🇯🇵',name:'Tokyo (TSE)',idx:'Nikkei 225',open:'00:00',close:'06:30',tz:9,chg:'+1.22%',dir:'up',idxVal:'39,412'},
+  {flag:'🇨🇳',name:'Shanghai (SSE)',idx:'SSE Composite',open:'01:30',close:'07:00',tz:8,chg:'+0.45%',dir:'up',idxVal:'3,412'},
+  {flag:'🇭🇰',name:'Hong Kong (HKEX)',idx:'Hang Seng',open:'01:30',close:'08:00',tz:8,chg:'-0.33%',dir:'dn',idxVal:'16,850'},
+  {flag:'🇸🇬',name:'Singapore (SGX)',idx:'STI',open:'01:00',close:'09:00',tz:8,chg:'+0.35%',dir:'up',idxVal:'3,218'},
+  {flag:'🇦🇺',name:'Sydney (ASX)',idx:'ASX 200',open:'00:00',close:'06:00',tz:11,chg:'+0.18%',dir:'up',idxVal:'7,856'},
+  {flag:'🇮🇳',name:'Mumbai (NSE/BSE)',idx:'Sensex',open:'03:45',close:'10:00',tz:5.5,chg:'+1.1%',dir:'up',idxVal:'78,120'},
+  {flag:'🇧🇷',name:'São Paulo (B3)',idx:'Bovespa',open:'13:00',close:'20:55',tz:-3,chg:'+0.9%',dir:'up',idxVal:'127,450'},
+  {flag:'🇨🇦',name:'Toronto (TSX)',idx:'TSX Composite',open:'14:30',close:'21:00',tz:-5,chg:'+0.44%',dir:'up',idxVal:'22,130'},
+  {flag:'🇦🇪',name:'Dubai (DFM)',idx:'DFM General',open:'06:00',close:'10:00',tz:4,chg:'+0.55%',dir:'up',idxVal:'4,102'},
+];
+const worldCities=[
+  {city:'New York',tz:-5},
+  {city:'London',tz:0},
+  {city:'Frankfurt',tz:1},
+  {city:'Dubai',tz:4},
+  {city:'Mumbai',tz:5.5},
+  {city:'Singapore',tz:8},
+  {city:'Tokyo',tz:9},
+  {city:'Sydney',tz:11},
+];
+function getMarketStatus(open,close,tz){
+  const now=new Date();
+  const utcH=now.getUTCHours()+now.getUTCMinutes()/60;
+  const local=(utcH+tz+24)%24;
+  const [oh,om]=open.split(':').map(Number);
+  const [ch,cm]=close.split(':').map(Number);
+  const openT=oh+om/60,closeT=ch+cm/60;
+  const day=now.getUTCDay();
+  if(day===0||day===6)return'closed';
+  if(local>=openT-0.5&&local<openT)return'pre';
+  if(local>=openT&&local<closeT)return'open';
+  return'closed';
+}
+function getLocalTime(tz){
+  const now=new Date();
+  const utcMs=now.getTime()+now.getTimezoneOffset()*60000;
+  const local=new Date(utcMs+tz*3600000);
+  return local.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+function getLocalDate(tz){
+  const now=new Date();
+  const utcMs=now.getTime()+now.getTimezoneOffset()*60000;
+  return new Date(utcMs+tz*3600000).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+}
+function renderMarkets(){
+  const wc=document.getElementById('world-clocks');
+  wc.innerHTML='';
+  worldCities.forEach(c=>{
+    const t=getLocalTime(c.tz),d=getLocalDate(c.tz);
+    wc.innerHTML+=`<div class="wc-item"><div class="wc-city">${c.city}</div><div class="wc-time" id="wct-${c.city.replace(' ','')}">${t}</div><div class="wc-date">${d}</div><div class="wc-offset">UTC${c.tz>=0?'+':''}${c.tz}</div></div>`;
+  });
+  const mc=document.getElementById('market-cards');
+  mc.innerHTML='';
+  markets.forEach(m=>{
+    const status=getMarketStatus(m.open,m.close,m.tz);
+    const stClass=status==='open'?'st-open':status==='pre'?'st-pre':'st-closed';
+    const stText=status==='open'?'Open':status==='pre'?'Pre-Market':'Closed';
+    const cardClass=status==='open'?'open':status==='pre'?'pre':'closed';
+    mc.innerHTML+=`<div class="mkt-card ${cardClass}"><span class="mkt-flag">${m.flag}</span><div class="mkt-name">${m.name}</div><div class="mkt-idx">${m.idx} · ${m.idxVal}</div><span class="mkt-status ${stClass}">${status==='open'?`<span class="mkt-live-dot"></span>`:''}${stText}</span><div class="mkt-time">${getLocalTime(m.tz)}</div><div class="mkt-hours">Session: ${m.open} – ${m.close} local</div><div class="mkt-chg ${m.dir==='up'?'up':'dn'}">${m.chg} today</div></div>`;
+  });
+  const utc=document.getElementById('utc-clock');
+  if(utc){
+    const now=new Date();
+    utc.textContent=`UTC: ${now.getUTCHours().toString().padStart(2,'0')}:${now.getUTCMinutes().toString().padStart(2,'0')}:${now.getUTCSeconds().toString().padStart(2,'0')}`;
+  }
+}
+renderMarkets();
+setInterval(renderMarkets,1000);
+
+// ══════════════════════════
+// ECONOMIC CALENDAR
+// ══════════════════════════
+const calEvents=[
+  {
+    impact:'high',country:'🇺🇸',name:'Federal Reserve Interest Rate Decision',source:'Federal Reserve',sourceUrl:'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm',
+    time:'19:00',actual:'4.50%',forecast:'4.50%',prev:'4.50%',status:'released',beat:'meet',
+    impactAnalysis:{equities:'S&P 500 steady +0.3% — no surprise, markets priced in hold. Tech leads.',fx:'USD/JPY dips 0.2% — slightly dovish tone. EUR/USD edges higher.',bonds:'US 10Y yield flat at 4.42% — market confirms 2 cuts expected in 2026.',commodities:'Gold ticks up $8 — real yields signal lower path ahead.'}
+  },
+  {
+    impact:'high',country:'🇺🇸',name:'US Consumer Price Index (CPI YoY)',source:'Bureau of Labor Statistics',sourceUrl:'https://www.bls.gov/cpi/',
+    time:'13:30',actual:'3.2%',forecast:'2.9%',prev:'3.4%',status:'released',beat:'miss',
+    impactAnalysis:{equities:'S&P 500 -0.8% on open — hotter-than-expected inflation delays rate cuts. Value beats growth.',fx:'USD surges — DXY +0.6%. EUR/USD drops to 1.078. USD/JPY spikes to 149.2.',bonds:'US 10Y yield spikes +12bps to 4.54%. Rate-cut bets pared back.',commodities:'Gold -0.5% on strong USD. Oil steady — inflation demand signal mixed.'}
+  },
+  {
+    impact:'high',country:'🇺🇸',name:'Non-Farm Payrolls (NFP)',source:'Bureau of Labor Statistics',sourceUrl:'https://www.bls.gov/news.release/empsit.nr0.htm',
+    time:'13:30',actual:'185K',forecast:'160K',prev:'201K',status:'released',beat:'beat',
+    impactAnalysis:{equities:'S&P 500 +1.1% — strong jobs = strong economy. Cyclicals and financials lead.',fx:'USD strengthens across board. DXY +0.4%. AUD/USD -0.3% on carry unwind.',bonds:'10Y yield rises 8bps — strong growth pushes inflation concerns back.',commodities:'Copper +0.8% on demand optimism. Oil +0.5%. Gold -0.3%.'}
+  },
+  {
+    impact:'high',country:'🇪🇺',name:'ECB Interest Rate Decision',source:'European Central Bank',sourceUrl:'https://www.ecb.europa.eu/press/govcdec/html/index.en.html',
+    time:'13:15',actual:'3.50%',forecast:'3.50%',prev:'3.75%',status:'released',beat:'meet',
+    impactAnalysis:{equities:'EuroStoxx50 +1.2% — rate cut welcomed. Banks -0.5%, exporters +2%.',fx:'EUR/USD drops 0.55% to 1.078 — rate cut lowers EUR attractiveness.',bonds:'German Bund 10Y yield falls 10bps. BTP-Bund spread narrows.',commodities:'Oil rises slightly on EUR demand assumption. Gold up $6.'}
+  },
+  {
+    impact:'high',country:'🇬🇧',name:'Bank of England Rate Decision',source:'Bank of England',sourceUrl:'https://www.bankofengland.co.uk/monetary-policy/the-interest-rate-bank-rate',
+    time:'12:00',actual:'5.25%',forecast:'5.00%',prev:'5.25%',status:'released',beat:'miss',
+    impactAnalysis:{equities:'FTSE 100 -0.9% — hawkish surprise hits rate-sensitive stocks. Homebuilders -2%.',fx:'GBP/USD surges +0.65% to 1.278 — higher UK rates boost GBP.',bonds:'UK Gilt 10Y yield rises 9bps. Expectations push back to August for first cut.',commodities:'Gold steady — offsetting USD/GBP dynamics. Oil unchanged.'}
+  },
+  {
+    impact:'medium',country:'🇺🇸',name:'US GDP Growth Rate QoQ (Q4 2025)',source:'Bureau of Economic Analysis',sourceUrl:'https://www.bea.gov/data/gdp/gross-domestic-product',
+    time:'13:30',actual:null,forecast:'2.4%',prev:'3.1%',status:'upcoming',beat:null,
+    impactAnalysis:{equities:'Beat: risk-on rally likely. Miss: defensive rotation, tech may hold.',fx:'Beat would strengthen USD. Miss could see EUR/USD push toward 1.095.',bonds:'Beat = yields rise. Miss = bond rally, 10Y may test 4.30%.',commodities:'Beat: copper, oil rally on demand. Miss: gold safe-haven bid.'}
+  },
+  {
+    impact:'medium',country:'🇨🇳',name:'China Industrial Production YoY',source:'National Bureau of Statistics China',sourceUrl:'https://www.stats.gov.cn/english/',
+    time:'02:00',actual:'5.6%',forecast:'5.2%',prev:'5.0%',status:'released',beat:'beat',
+    impactAnalysis:{equities:'Hang Seng +1.8%, ASX materials +1.2%. Iron ore producers surge.',fx:'AUD/USD +0.4% — Australia\'s biggest trade partner beats. CNY steady.',bonds:'Chinese government bonds flat. PBOC maintains neutral stance.',commodities:'Iron ore +2.1%, copper +1.3%, aluminium +0.8% — demand optimism.'}
+  },
+  {
+    impact:'high',country:'🇯🇵',name:'Bank of Japan Policy Rate Decision',source:'Bank of Japan',sourceUrl:'https://www.boj.or.jp/en/mopo/mpmdeci/',
+    time:'03:00',actual:null,forecast:'0.25%',prev:'0.10%',status:'upcoming',beat:null,
+    impactAnalysis:{equities:'Rate hike would hit Nikkei -1.5%. Banks gain. Exporters fall on stronger JPY.',fx:'USD/JPY could fall 200-300 pips on surprise hike. Major yen reversal.',bonds:'JGB 10Y yield would spike. Potential global bond market ripple.',commodities:'Gold steady. JPY strength would weigh on USD-denominated commodities.'}
+  },
+  {
+    impact:'low',country:'🇩🇪',name:'Germany IFO Business Climate Index',source:'ifo Institute',sourceUrl:'https://www.ifo.de/en/ifo-business-climate-index',
+    time:'09:00',actual:'85.2',forecast:'84.8',prev:'84.1',status:'released',beat:'beat',
+    impactAnalysis:{equities:'DAX +0.3% on open. German industrials and exporters modestly higher.',fx:'EUR/USD ticks up 0.1% — improving German sentiment supports Euro.',bonds:'Bund yields unchanged — modest data beat absorbed without major move.',commodities:'Negligible impact — domestic German survey has limited commodity effect.'}
+  },
+  {
+    impact:'high',country:'🇺🇸',name:'US Core PCE Price Index (Fed\'s preferred)',source:'Bureau of Economic Analysis',sourceUrl:'https://www.bea.gov/data/personal-consumption-expenditures-price-index',
+    time:'13:30',actual:null,forecast:'2.7%',prev:'2.8%',status:'upcoming',beat:null,
+    impactAnalysis:{equities:'Below 2.7%: tech rally, rate-cut expectations firmed. Above 2.8%: selloff.',fx:'Miss on PCE = USD weakness, risk-on in EM currencies.',bonds:'PCE miss = bond rally, 2Y yield could fall 10-15bps.',commodities:'Gold benefits from PCE miss (lower real yields). Oil neutral.'}
+  },
+];
+function impactDots(level){
+  const filled=level==='high'?3:level==='medium'?2:1;
+  return `<div class="ev-impact">${[1,2,3].map(i=>`<div class="imp-dot ${i<=filled?level==='high'?'imp-hi':level==='medium'?'imp-med':'imp-lo':''}"></div>`).join('')}</div>`;
+}
+function renderCalendar(filter='all'){
+  const tbody=document.getElementById('cal-body');
+  tbody.innerHTML='';
+  const panel=document.getElementById('cal-impact-panel');
+  panel.innerHTML='';
+  calEvents.filter(ev=>filter==='all'||ev.impact===filter||ev.status===filter).forEach((ev,i)=>{
+    const beatClass=ev.beat==='beat'?'beat':ev.beat==='miss'?'miss':ev.beat==='meet'?'meet':'';
+    const stClass=ev.status==='upcoming'?'es-upcoming':ev.status==='live'?'es-live':'es-released';
+    const stText=ev.status==='upcoming'?'Upcoming':ev.status==='live'?'🔴 LIVE':'Released';
+    const tr=document.createElement('tr');tr.className=ev.status;tr.dataset.impact=ev.impact;tr.dataset.status=ev.status;
+    tr.innerHTML=`
+      <td>${impactDots(ev.impact)}</td>
+      <td><div class="ev-time">${ev.time}</div></td>
+      <td><div class="ev-country">${ev.country}</div></td>
+      <td><div class="ev-name">${ev.name}</div><div class="ev-source"><a href="${ev.sourceUrl}" target="_blank">📎 ${ev.source} ↗</a></div></td>
+      <td><div class="ev-source"><a href="${ev.sourceUrl}" target="_blank">Official →</a></div></td>
+      <td><div class="ev-actual ${beatClass}">${ev.actual||'—'}</div></td>
+      <td><div class="ev-forecast">${ev.forecast}</div></td>
+      <td><div class="ev-prev">${ev.prev}</div></td>
+      <td><span class="ev-status ${stClass}">${stText}</span></td>`;
+    tbody.appendChild(tr);
+    // impact analysis cards for high-impact released events
+    if(ev.impactAnalysis&&(filter==='all'||filter===ev.impact||filter===ev.status)){
+      const card=document.createElement('div');
+      card.style.cssText='background:var(--s1);border:1px solid var(--border2);border-radius:11px;padding:1rem;';
+      card.innerHTML=`<div style="font-family:var(--font-m);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:.55rem;">${ev.country} ${ev.name.split(' ').slice(0,3).join(' ')}</div>
+      <div class="ev-impact-block"><div class="eib-title">Equities</div>${ev.impactAnalysis.equities}</div>
+      <div class="ev-impact-block"><div class="eib-title">FX</div>${ev.impactAnalysis.fx}</div>
+      <div class="ev-impact-block"><div class="eib-title">Bonds</div>${ev.impactAnalysis.bonds}</div>
+      <div class="ev-impact-block"><div class="eib-title">Commodities</div>${ev.impactAnalysis.commodities}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.6rem;">
+        <span class="impact-tag it-eq">Equities</span>
+        <span class="impact-tag it-fx">FX</span>
+        <span class="impact-tag it-bd">Bonds</span>
+        <span class="impact-tag it-cmdty">Commodities</span>
+      </div>`;
+      panel.appendChild(card);
+    }
+  });
+}
+renderCalendar();
+function filterCal(f,btn){
+  document.querySelectorAll('.cf-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  renderCalendar(f);
+}
+
+// ══════════════════════════
+// GOV FEED
+// ══════════════════════════
+const govFeeds=[
+  {
+    flag:'🇺🇸',org:'Federal Reserve',url:'https://www.federalreserve.gov',badge:'Central Bank',
+    items:[
+      {title:'FOMC Statement: Fed holds rates 4.25-4.50% — signals 2 cuts in 2026',meta:'March 19, 2026 · federalreserve.gov',impacts:[{l:'USD Mixed',c:'gi-neutral'},{l:'S&P +0.3%',c:'gi-up'},{l:'Bonds Flat',c:'gi-neutral'}]},
+      {title:'Fed Balance Sheet: QT continues at $60B/month cap — no change to runoff',meta:'March 19, 2026 · federalreserve.gov',impacts:[{l:'Liquidity',c:'gi-neutral'},{l:'Bond Supply',c:'gi-neutral'}]},
+      {title:'Fed Beige Book: Economy "expanded modestly" in 10 of 12 districts',meta:'March 5, 2026 · federalreserve.gov',impacts:[{l:'Risk-On',c:'gi-up'},{l:'USD Stable',c:'gi-neutral'}]},
+    ]
+  },
+  {
+    flag:'🇺🇸',org:'Bureau of Labor Statistics',url:'https://www.bls.gov',badge:'Statistics',
+    items:[
+      {title:'CPI February 2026: +3.2% YoY — beats forecast of 2.9%. Core CPI +3.8%',meta:'March 12, 2026 · bls.gov',impacts:[{l:'USD ▲ +0.6%',c:'gi-up'},{l:'S&P -0.8%',c:'gi-dn'},{l:'Gold -0.5%',c:'gi-dn'},{l:'10Y +12bps',c:'gi-dn'}]},
+      {title:'NFP February 2026: +185K jobs vs 160K forecast. Unemployment 3.9%',meta:'March 7, 2026 · bls.gov',impacts:[{l:'S&P +1.1%',c:'gi-up'},{l:'USD ▲',c:'gi-up'},{l:'Copper +0.8%',c:'gi-up'}]},
+      {title:'PPI February 2026: +2.1% YoY — in-line with forecast. Services +2.8%',meta:'March 13, 2026 · bls.gov',impacts:[{l:'Inflation Watch',c:'gi-neutral'},{l:'Bonds Flat',c:'gi-neutral'}]},
+    ]
+  },
+  {
+    flag:'🇪🇺',org:'European Central Bank',url:'https://www.ecb.europa.eu',badge:'Central Bank',
+    items:[
+      {title:'ECB Monetary Policy Decision: Rate cut 25bps to 3.50%. Deposit facility 3.25%',meta:'March 6, 2026 · ecb.europa.eu',impacts:[{l:'EUR/USD -0.55%',c:'gi-dn'},{l:'EuroStoxx +1.2%',c:'gi-up'},{l:'Bund -10bps',c:'gi-up'}]},
+      {title:'ECB Economic Projections: 2026 EZ growth 1.1%, inflation 2.2%',meta:'March 6, 2026 · ecb.europa.eu',impacts:[{l:'EUR Stable',c:'gi-neutral'},{l:'European Banks',c:'gi-neutral'}]},
+    ]
+  },
+  {
+    flag:'🇬🇧',org:'Bank of England',url:'https://www.bankofengland.co.uk',badge:'Central Bank',
+    items:[
+      {title:'MPC Decision: Bank Rate held at 5.25%. 7-2 vote — two members favoured cut',meta:'March 20, 2026 · bankofengland.co.uk',impacts:[{l:'GBP/USD +0.65%',c:'gi-up'},{l:'FTSE -0.9%',c:'gi-dn'},{l:'Gilts -9bps',c:'gi-dn'}]},
+      {title:'MPR: BoE raises 2026 inflation forecast to 2.9% on energy & services',meta:'February 2026 · bankofengland.co.uk',impacts:[{l:'Hawkish Signal',c:'gi-dn'},{l:'GBP Support',c:'gi-up'}]},
+    ]
+  },
+  {
+    flag:'🇯🇵',org:'Bank of Japan',url:'https://www.boj.or.jp/en',badge:'Central Bank',
+    items:[
+      {title:'BOJ Outlook: Board discusses exit from YCC — first rate hike to 0.25% possible Q2',meta:'March 2026 · boj.or.jp',impacts:[{l:'USD/JPY -150bps',c:'gi-dn'},{l:'JGB Yield +',c:'gi-dn'},{l:'Nikkei Risk',c:'gi-dn'}]},
+      {title:'Japan Core CPI: +2.8% YoY — highest since 1992, supports policy normalization',meta:'February 2026 · boj.or.jp',impacts:[{l:'JPY Strengthen',c:'gi-up'},{l:'Export Risk',c:'gi-dn'}]},
+    ]
+  },
+  {
+    flag:'🇨🇳',org:'People\'s Bank of China',url:'https://www.pbc.gov.cn/en/',badge:'Central Bank',
+    items:[
+      {title:'PBOC: Cuts RRR by 50bps effective April 1 — injects ~1 trillion yuan liquidity',meta:'March 2026 · pbc.gov.cn',impacts:[{l:'China Equities ▲',c:'gi-up'},{l:'CNY Steady',c:'gi-neutral'},{l:'Iron Ore +2%',c:'gi-up'}]},
+      {title:'LPR: 1Y at 3.45%, 5Y at 4.0% — held steady for 4th consecutive month',meta:'March 2026 · pbc.gov.cn',impacts:[{l:'Property Flat',c:'gi-neutral'},{l:'Banks Stable',c:'gi-neutral'}]},
+    ]
+  },
+];
+const govGrid=document.getElementById('gov-grid');
+govFeeds.forEach(feed=>{
+  const card=document.createElement('div');card.className='gov-card rv';
+  card.innerHTML=`<div class="gc-head"><span class="gc-flag">${feed.flag}</span><div><div class="gc-org">${feed.org}</div><div class="gc-url"><a href="${feed.url}" target="_blank">${feed.url.replace('https://','')}</a></div></div><span class="gc-badge">${feed.badge}</span></div>
+  <div class="gc-body">${feed.items.map(item=>`<div class="gc-item"><div class="gc-item-title">${item.title}</div><div class="gc-item-meta">${item.meta}</div><div class="gc-impacts">${item.impacts.map(imp=>`<span class="gci ${imp.c}">${imp.l}</span>`).join('')}</div></div>`).join('')}</div>`;
+  govGrid.appendChild(card);
+});
+
+// ══════════════════════════
+// COMMODITIES
+// ══════════════════════════
+const cmdData={
+  energy:[
+    {ico:'🛢️',n:'Brent Crude Oil',sym:'BRENTUSD',p:'$81.40',c:'-0.34%',dir:'dn',u:'per barrel',hi:'$83.20',lo:'$79.80',bars:[45,52,48,55,50,58,54,60,56,62,58,55,52,58,54,50,48,52]},
+    {ico:'🛢️',n:'WTI Crude Oil',sym:'WTIUSD',p:'$77.82',c:'-0.28%',dir:'dn',u:'per barrel',hi:'$79.40',lo:'$76.50',bars:[42,48,44,50,46,54,50,56,52,58,54,50,48,52,48,45,43,47]},
+    {ico:'🔥',n:'Natural Gas',sym:'NATGAS',p:'$2.84',c:'-1.2%',dir:'dn',u:'per MMBtu',hi:'$3.10',lo:'$2.75',bars:[60,55,50,45,40,35,42,38,44,40,46,42,38,40,36,32,35,30]},
+    {ico:'⛽',n:'RBOB Gasoline',sym:'RBOB',p:'$2.28',c:'+0.15%',dir:'up',u:'per gallon',hi:'$2.35',lo:'$2.20',bars:[38,42,40,45,42,48,44,50,46,52,48,45,50,47,52,49,54,52]},
+    {ico:'🏭',n:'Heating Oil',sym:'HO',p:'$2.54',c:'-0.42%',dir:'dn',u:'per gallon',hi:'$2.65',lo:'$2.48',bars:[55,52,48,50,46,42,44,40,43,40,38,42,40,37,35,38,34,32]},
+    {ico:'⚡',n:'TTF Natural Gas',sym:'TTFGAS',p:'€28.40',c:'+2.1%',dir:'up',u:'€/MWh EU',hi:'€29.80',lo:'€26.50',bars:[30,32,28,34,30,36,32,38,34,40,38,42,40,44,42,46,44,48]},
+    {ico:'🌊',n:'LNG JKM',sym:'LNGJKM',p:'$12.40',c:'-0.8%',dir:'dn',u:'per MMBtu',hi:'$13.20',lo:'$11.80',bars:[52,48,44,40,42,38,40,36,38,34,36,32,34,30,32,28,30,26]},
+    {ico:'⚛️',n:'Uranium',sym:'UX',p:'$92.50',c:'+1.2%',dir:'up',u:'per lb U3O8',hi:'$96.00',lo:'$88.00',bars:[40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74]},
+  ],
+  metals:[
+    {ico:'🥇',n:'Gold',sym:'XAUUSD',p:'$2,381',c:'+0.44%',dir:'up',u:'per troy oz',hi:'$2,395',lo:'$2,360',bars:[50,52,54,56,58,60,58,62,60,64,62,66,64,68,66,70,68,72]},
+    {ico:'🥈',n:'Silver',sym:'XAGUSD',p:'$28.42',c:'+0.31%',dir:'up',u:'per troy oz',hi:'$28.90',lo:'$27.80',bars:[44,46,48,50,52,48,52,50,54,52,56,54,58,56,60,58,62,60]},
+    {ico:'🟠',n:'Copper',sym:'XCUUSD',p:'$4.18',c:'+0.55%',dir:'up',u:'per pound',hi:'$4.28',lo:'$4.08',bars:[48,50,52,54,50,56,52,58,54,60,56,62,58,64,60,66,62,68]},
+    {ico:'⚙️',n:'Platinum',sym:'XPTUSD',p:'$1,020',c:'-0.22%',dir:'dn',u:'per troy oz',hi:'$1,040',lo:'$1,010',bars:[55,52,50,48,50,46,48,44,46,42,44,40,42,38,40,36,38,34]},
+    {ico:'💎',n:'Palladium',sym:'XPDUSD',p:'$1,052',c:'-1.4%',dir:'dn',u:'per troy oz',hi:'$1,100',lo:'$1,040',bars:[70,65,60,55,50,55,50,45,50,45,40,45,40,35,40,35,30,35]},
+    {ico:'🔩',n:'Steel HRC',sym:'STEELUSD',p:'$680',c:'+0.9%',dir:'up',u:'per metric ton',hi:'$695',lo:'$665',bars:[40,42,44,46,48,50,52,48,52,50,54,52,56,54,58,56,60,58]},
+    {ico:'🏗️',n:'Iron Ore',sym:'IRONORE',p:'$108.20',c:'-0.4%',dir:'dn',u:'per metric ton',hi:'$112',lo:'$105',bars:[62,58,60,56,58,54,56,52,54,50,52,48,50,46,48,44,46,42]},
+    {ico:'⚡',n:'Lithium',sym:'LITHIUM',p:'$14,200',c:'-2.1%',dir:'dn',u:'per metric ton',hi:'$15,500',lo:'$13,800',bars:[80,75,70,65,60,55,50,45,50,45,40,42,38,40,36,38,34,30]},
+  ],
+  agri:[
+    {ico:'🌾',n:'Wheat (CBOT)',sym:'ZW',p:'$543',c:'-0.8%',dir:'dn',u:'cents per bushel',hi:'$565',lo:'$535',bars:[60,55,52,48,50,46,48,44,46,42,44,40,42,38,40,36,38,34]},
+    {ico:'🌽',n:'Corn (CBOT)',sym:'ZC',p:'$432',c:'-0.35%',dir:'dn',u:'cents per bushel',hi:'$445',lo:'$425',bars:[55,52,50,48,46,44,46,42,44,40,42,38,40,36,38,34,36,32]},
+    {ico:'🫘',n:'Soybeans',sym:'ZS',p:'$1,180',c:'+0.45%',dir:'up',u:'cents per bushel',hi:'$1,205',lo:'$1,165',bars:[42,44,46,48,50,52,48,52,50,54,52,56,54,58,56,60,58,62]},
+    {ico:'🌾',n:'Rice (CBOT)',sym:'ZR',p:'$16.85',c:'+0.2%',dir:'up',u:'per cwt',hi:'$17.20',lo:'$16.50',bars:[38,40,42,44,46,48,44,48,46,50,48,52,50,54,52,56,54,58]},
+    {ico:'🐄',n:'Live Cattle',sym:'LE',p:'$185.40',c:'+0.62%',dir:'up',u:'cents per pound',hi:'$188.00',lo:'$183.00',bars:[44,46,48,50,52,54,50,54,52,56,54,58,56,60,58,62,60,64]},
+    {ico:'🌻',n:'Palm Oil (MDEX)',sym:'FCPO',p:'RM 3,842',c:'+1.1%',dir:'up',u:'per metric ton',hi:'RM 3,900',lo:'RM 3,780',bars:[40,42,44,46,48,50,52,54,50,54,52,56,54,58,56,60,58,62]},
+    {ico:'🌱',n:'Canola / Rapeseed',sym:'RS',p:'C$614',c:'-0.55%',dir:'dn',u:'per metric ton',hi:'C$635',lo:'C$605',bars:[55,52,50,48,46,44,46,42,44,40,42,38,40,36,38,34,36,32]},
+    {ico:'🐷',n:'Lean Hogs',sym:'HE',p:'$88.50',c:'+1.2%',dir:'up',u:'cents per pound',hi:'$90.00',lo:'$86.00',bars:[40,42,44,46,48,50,52,50,54,52,56,54,58,56,60,58,62,60]},
+  ],
+  softs:[
+    {ico:'☕',n:'Coffee (Arabica)',sym:'KC',p:'$188.50',c:'+2.1%',dir:'up',u:'cents per pound',hi:'$192.00',lo:'$182.00',bars:[40,42,44,46,48,52,50,54,52,58,56,60,58,64,62,66,64,70]},
+    {ico:'🍚',n:'Sugar #11',sym:'SB',p:'$19.42',c:'-0.55%',dir:'dn',u:'cents per pound',hi:'$20.10',lo:'$19.00',bars:[55,52,50,46,48,44,46,42,44,40,42,38,40,36,38,34,36,32]},
+    {ico:'🍫',n:'Cocoa',sym:'CC',p:'$5,850',c:'+3.2%',dir:'up',u:'per metric ton',hi:'$6,000',lo:'$5,650',bars:[40,44,42,48,46,52,50,56,54,60,58,64,62,68,66,72,70,76]},
+    {ico:'🍊',n:'Orange Juice',sym:'OJ',p:'$342.50',c:'-1.2%',dir:'dn',u:'cents per pound',hi:'$360',lo:'$335',bars:[65,60,55,52,48,44,46,42,44,40,42,38,40,36,38,34,36,32]},
+    {ico:'🌿',n:'Rubber (TOCOM)',sym:'RUBBER',p:'¥268',c:'+0.8%',dir:'up',u:'per kg Japan',hi:'¥275',lo:'¥260',bars:[40,42,44,46,48,50,48,52,50,54,52,56,54,58,56,60,58,62]},
+    {ico:'🧵',n:'Cotton #2',sym:'CT',p:'$79.50',c:'-0.35%',dir:'dn',u:'cents per pound',hi:'$81.50',lo:'$78.00',bars:[52,50,48,46,48,44,46,42,44,40,42,38,40,36,38,34,36,32]},
+  ],
+};
+function renderCmds(cat){
+  const grid=document.getElementById(`cg-${cat}`);
+  if(!grid)return;
+  grid.innerHTML='';
+  cmdData[cat].forEach(c=>{
+    const div=document.createElement('div');div.className='cmd-card';
+    const barH=c.bars.map(b=>`<div class="cmb" style="height:${b}%;background:${c.dir==='up'?'rgba(16,185,129,.35)':'rgba(244,63,94,.3)'};"></div>`).join('');
+    div.innerHTML=`<span class="cmd-icon">${c.ico}</span><div class="cmd-name">${c.n}</div><div class="cmd-sym">${c.sym}</div><div class="cmd-price">${c.p}</div><div class="cmd-chg ${c.dir==='up'?'up':'dn'}">${c.dir==='up'?'▲':'▼'} ${c.c}</div><div class="cmd-unit">${c.u}</div><div class="cmd-mini">${barH}</div><div class="cmd-meta"><span>H: ${c.hi}</span><span>L: ${c.lo}</span></div>`;
+    grid.appendChild(div);
+  });
+}
+['energy','metals','agri','softs'].forEach(renderCmds);
+function switchCmd(cat,btn){
+  document.querySelectorAll('.cmd-tab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  document.querySelectorAll('.cmd-content').forEach(c=>c.classList.remove('on'));
+  document.getElementById(`cmd-${cat}`).classList.add('on');
+}
+
+// ══════════════════════════
+// FX MATRIX
+// ══════════════════════════
+const fxData=[
+  {
+    title:'Major Pairs',pairs:[
+      {pair:'EUR/USD',rate:'1.0842',chg:'+0.11%',dir:'up',vol:'$1.2T',impact:'ECB -25bps → EUR pressure',tag:'fi-rate'},
+      {pair:'USD/JPY',rate:'148.52',chg:'-0.22%',dir:'dn',vol:'$890B',impact:'BoJ hike risk → JPY bid',tag:'fi-rate-raise'},
+      {pair:'GBP/USD',rate:'1.2742',chg:'+0.65%',dir:'up',vol:'$540B',impact:'BoE hold surprise → GBP up',tag:'fi-rate'},
+      {pair:'USD/CHF',rate:'0.8842',chg:'-0.14%',dir:'dn',vol:'$320B',impact:'SNB rate cut expected Q2',tag:'fi-data'},
+      {pair:'AUD/USD',rate:'0.6542',chg:'-0.09%',dir:'dn',vol:'$280B',impact:'China GDP miss → AUD weak',tag:'fi-data'},
+      {pair:'USD/CAD',rate:'1.3580',chg:'+0.08%',dir:'up',vol:'$265B',impact:'Oil lower → CAD softer',tag:'fi-cmdty'},
+    ]
+  },
+  {
+    title:'EM & Commodity FX',pairs:[
+      {pair:'USD/CNY',rate:'7.1050',chg:'-0.05%',dir:'dn',vol:'$380B',impact:'PBOC fixes steady. CNY stable',tag:'fi-data'},
+      {pair:'USD/BRL',rate:'4.9820',chg:'-0.32%',dir:'dn',vol:'$95B',impact:'Brazil GDP beat → BRL rally',tag:'fi-data'},
+      {pair:'USD/MXN',rate:'16.82',chg:'+0.14%',dir:'up',vol:'$115B',impact:'Fed hold → MXN supported',tag:'fi-rate'},
+      {pair:'USD/INR',rate:'83.42',chg:'+0.06%',dir:'up',vol:'$85B',impact:'RBI intervention caps gains',tag:'fi-risk'},
+      {pair:'USD/ZAR',rate:'18.65',chg:'+0.45%',dir:'up',vol:'$45B',impact:'SA political risk premium',tag:'fi-risk'},
+      {pair:'USD/NGN',rate:'1,614',chg:'-0.8%',dir:'dn',vol:'$8B',impact:'CBN rate hike 25% → NGN stable',tag:'fi-rate-raise'},
+    ]
+  },
+];
+const fxPanels=document.getElementById('fx-panels');
+fxData.forEach(panel=>{
+  const div=document.createElement('div');div.className='fx-panel';
+  const rows=panel.pairs.map(p=>`<div class="fx-row">
+    <div class="fx-pair">${p.pair}</div>
+    <div class="fx-rate">${p.rate}</div>
+    <div class="fx-chg ${p.dir==='up'?'up':'dn'}">${p.dir==='up'?'▲':'▼'} ${p.chg}</div>
+    <div class="fx-vol" style="font-size:.62rem">${p.vol}</div>
+    <div class="fx-impact"><span class="fx-impact-tag ${p.tag}" style="font-size:.56rem">${p.impact}</span></div>
+  </div>`).join('');
+  div.innerHTML=`<div class="fx-head"><div class="fx-head-t">${panel.title}</div><div class="fx-live"><span class="mkt-live-dot" style="width:5px;height:5px;"></span>Live</div></div><div class="fx-rows">${rows}</div>`;
+  fxPanels.appendChild(div);
+});
+
+// ══════════════════════════
+// BOND YIELDS
+// ══════════════════════════
+const bondData=[
+  {flag:'🇺🇸',country:'United States',tenors:[['2Y','4.82%','+0.04%','dn'],['5Y','4.62%','+0.03%','up'],['10Y','4.42%','+0.02%','up'],['30Y','4.55%','+0.01%','up']],bars:[95,90,88,85,82,84,86,88,90,92],shape:'normal',signal:'Normal curve · Recession risk low. 2Y-10Y spread -40bps — slightly inverted. Monitor.',signalType:'bs-flat'},
+  {flag:'🇩🇪',country:'Germany',tenors:[['2Y','2.95%','-0.08%','dn'],['5Y','2.58%','-0.07%','dn'],['10Y','2.42%','-0.06%','dn'],['30Y','2.65%','-0.04%','up']],bars:[88,80,75,72,70,68,70,72,74,76],shape:'normal',signal:'Steepening post-ECB cut. 10Y at 2.42% — lowest since 2022. Dovish signals continue.',signalType:'bs-normal'},
+  {flag:'🇯🇵',country:'Japan',tenors:[['2Y','0.22%','+0.08%','up'],['5Y','0.58%','+0.06%','up'],['10Y','0.88%','+0.05%','up'],['30Y','1.85%','+0.04%','up']],bars:[20,35,45,55,62,65,68,70,72,75],shape:'normal',signal:'Steepening fast — BoJ normalization expected. 10Y breaks 0.88%. Short-end repricing.',signalType:'bs-normal'},
+  {flag:'🇬🇧',country:'United Kingdom',tenors:[['2Y','4.55%','+0.09%','up'],['5Y','4.38%','+0.07%','up'],['10Y','4.28%','+0.06%','up'],['30Y','4.75%','+0.04%','up']],bars:[90,88,86,85,84,86,88,89,90,92],shape:'normal',signal:'Upward shift post-BoE hold surprise. Gilts sell off across curve. 2Y-10Y: -27bps.',signalType:'bs-flat'},
+  {flag:'🇮🇹',country:'Italy',tenors:[['2Y','3.12%','-0.06%','dn'],['5Y','3.48%','-0.04%','dn'],['10Y','3.92%','-0.03%','dn'],['30Y','4.45%','+0.01%','up']],bars:[60,65,68,72,75,78,80,82,84,86],shape:'normal',signal:'BTP-Bund spread 150bps — narrows post-ECB cut. Fiscal risk premium moderating.',signalType:'bs-normal'},
+  {flag:'🇯🇵',country:'Japan JGB vs US',tenors:[['Spread','360bps','',''],['10Y JGB','0.88%','',''],['10Y UST','4.42%','',''],['USD/JPY','148.52','','']],bars:[82,84,86,88,90,92,94,92,90,88],shape:'normal',signal:'360bps US-Japan spread still drives carry trade. BoJ hike risk = JPY unwind risk. Monitor.',signalType:'bs-flat'},
+];
+const bg=document.getElementById('bond-grid');
+bondData.forEach(b=>{
+  const div=document.createElement('bond-card');div.className='bond-card rv';
+  const bars=b.bars.map((h,i)=>`<div class="bond-bar norm" style="height:${h}%;"></div>`).join('');
+  const rows=b.tenors.map(t=>`<div class="bond-row"><span class="bond-tenor">${t[0]}</span><span class="bond-yield">${t[1]}</span><span class="bond-chg ${t[3]==='up'?'up':t[3]==='dn'?'dn':''}">${t[2]}</span></div>`).join('');
+  div.innerHTML=`<div class="bond-country"><span class="bond-flag">${b.flag}</span>${b.country}</div><div class="bond-curve">${bars}</div><div class="bond-rows">${rows}</div><div class="bond-signal ${b.signalType}">${b.signal}</div>`;
+  bg.appendChild(div);
+});
+document.querySelectorAll('.bond-card').forEach(el=>{
+  const d=document.createElement('div');d.className='bond-card rv';d.innerHTML=el.innerHTML;bg.appendChild(d);el.remove();
+});
+bondData.forEach(b=>{
+  const div=document.createElement('div');div.className='bond-card rv';
+  const bars=b.bars.map(h=>`<div class="bond-bar norm" style="height:${h}%;"></div>`).join('');
+  const rows=b.tenors.map(t=>`<div class="bond-row"><span class="bond-tenor">${t[0]}</span><span class="bond-yield">${t[1]}</span><span class="bond-chg ${t[3]==='up'?'up':t[3]==='dn'?'dn':''}">${t[2]}</span></div>`).join('');
+  div.innerHTML=`<div class="bond-country"><span class="bond-flag">${b.flag}</span>${b.country}</div><div class="bond-curve">${bars}</div><div class="bond-rows">${rows}</div><div class="bond-signal ${b.signalType}">${b.signal}</div>`;
+  bg.appendChild(div);
+});
+
+// ══════════════════════════
+// AI ANALYZER
+// ══════════════════════════
+async function askAI(q){document.getElementById('ai-input').value=q;await sendAI();}
+async function sendAI(){
+  const inp=document.getElementById('ai-input');
+  const q=inp.value.trim();if(!q)return;
+  const chips=document.getElementById('ai-chips');if(chips)chips.remove();
+  inp.value='';
+  const btn=document.getElementById('ai-btn');btn.disabled=true;btn.textContent='…';
+  const body=document.getElementById('ai-body');
+  const uDiv=document.createElement('div');uDiv.className='chat-msg user';
+  uDiv.innerHTML=`<div class="chat-av av-user">You</div><div class="chat-bubble bubble-user">${q}</div>`;
+  body.appendChild(uDiv);
+  const tDiv=document.createElement('div');tDiv.className='chat-msg';tDiv.id='thinking';
+  tDiv.innerHTML=`<div class="chat-av av-ai">✦</div><div class="thinking"><span></span><span></span><span></span></div>`;
+  body.appendChild(tDiv);body.scrollTop=body.scrollHeight;
+  try{
+    const sys=`You are Planet News AI Impact Analyzer — a professional financial analyst AI. When given any economic release, government announcement, or central bank statement, analyze its impact on:
+1. **Equities** (global indices, sectors — winners & losers)
+2. **Foreign Exchange** (specific currency pairs and direction, with magnitude estimates)
+3. **Bond Markets** (yield direction, specific tenors)
+4. **Commodities** (oil, gold, copper, agricultural — with reasoning)
+5. **Geopolitical/Regional impact** (which regions or countries are most affected)
+Format with clear headers. Be specific: give estimated bps moves, % moves, named instruments. Be professional, concise, analyst-quality. Today is March 2026.`;
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:[{role:'user',content:q}]})
+    });
+    const data=await res.json();
+    document.getElementById('thinking').remove();
+    const reply=(data.content?.[0]?.text||'Analysis unavailable.').replace(/\n/g,'<br/>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+    const aDiv=document.createElement('div');aDiv.className='chat-msg';
+    aDiv.innerHTML=`<div class="chat-av av-ai">✦</div><div class="chat-bubble bubble-ai">${reply}</div>`;
+    body.appendChild(aDiv);body.scrollTop=body.scrollHeight;
+  }catch(e){
+    document.getElementById('thinking')?.remove();
+    const aDiv=document.createElement('div');aDiv.className='chat-msg';
+    aDiv.innerHTML=`<div class="chat-av av-ai">✦</div><div class="chat-bubble bubble-ai">⚠️ In the live product, this provides professional-grade market impact analysis powered by AI and real-time data feeds. The AI analyzes equities, FX, bonds, and commodities simultaneously.</div>`;
+    body.appendChild(aDiv);body.scrollTop=body.scrollHeight;
+  }
+  btn.disabled=false;btn.textContent='Analyze →';
+}
+
+// ══════════════════════════
+// WHY BETTER THAN BLOOMBERG
+// ══════════════════════════
+const wbItems=[
+  {ico:'🌍',title:'Interactive 3D Globe',desc:'Bloomberg has zero geographic visualization. Planet News puts every data point on an interactive 3D Earth you can spin, zoom, and click.',type:'pn'},
+  {ico:'📅',title:'Economic Calendar + Impact AI',desc:'Bloomberg shows economic releases. Planet News shows them with AI-powered impact analysis on equities, FX, bonds, and commodities — before and after each release.',type:'pn'},
+  {ico:'🏛️',title:'Government Announcement Feed',desc:'Aggregates official releases from Fed, ECB, BoJ, Treasury, BLS, BEA, Eurostat, and 40+ government sources — with market impact ratings.',type:'pn'},
+  {ico:'🛢️',title:'50+ Commodity Prices',desc:'Energy, metals, agriculture, and softs — all in one terminal. Bloomberg charges extra per commodity class. Planet News includes everything.',type:'pn'},
+  {ico:'💱',title:'85 FX Pairs with Event Impact',desc:'Every exchange rate linked to the economic event driving it. See what\'s moving the USD/JPY in real time — not just the number.',type:'pn'},
+  {ico:'📈',title:'Sovereign Bond Yield Curves',desc:'Track yield curves and inversion signals for 20+ countries. Recession signal dashboard included — Bloomberg equivalent costs extra.',type:'pn'},
+  {ico:'🤖',title:'AI Market Impact Analyzer',desc:'Paste any government announcement. Get instant professional-grade analysis of impact on all asset classes. Bloomberg AI is limited and costs $50K extra.',type:'pn'},
+  {ico:'⏰',title:'Global Market Hours Clock',desc:'Real-time world clock showing which exchanges are open, local trading times, and current indices — including pre-market and after-hours status.',type:'pn'},
+  {ico:'💰',title:'27× Cheaper Than Bloomberg',desc:'Bloomberg: $31,980/user/year. Planet News: $1,188/year. Same core intelligence, self-serve, no terminal hardware, no sales call required.',type:'pn'},
+  {ico:'🖥️',title:'Works in Any Browser',desc:'Bloomberg requires proprietary hardware and software. Planet News runs in Chrome, Safari, Firefox — on any device, anywhere in the world.',type:'pn'},
+  {ico:'🔔',title:'Geo-Fenced Intelligence Alerts',desc:'Set alerts for keywords + regions + risk thresholds. Get notified when a government announces something that affects your specific markets.',type:'pn'},
+  {ico:'🔌',title:'REST API Included',desc:'Export any data point via API. Bloomberg API costs $10K+/year extra. Planet News includes API access on Professional plan.',type:'pn'},
+];
+const wbGrid=document.getElementById('wb-grid');
+wbItems.forEach((item,i)=>{
+  const d=document.createElement('div');d.className='wb-card pn rv';d.style.transitionDelay=(i%3*.08)+'s';
+  d.innerHTML=`<span class="wb-icon">${item.ico}</span><div class="wb-title">${item.title}</div><div class="wb-desc">${item.desc}</div>`;
+  wbGrid.appendChild(d);
+});
+const vsData=[
+  ['3D Interactive Globe','❌ None','✓ Map only','✓ Limited','✅ Full 3D'],
+  ['Economic Calendar + AI Impact','Partial only','❌','❌','✅ Full AI'],
+  ['Government Announcement Feed','✓ Some','❌','❌','✅ 40+ sources'],
+  ['50+ Commodity Prices','✓ Extra cost','❌','❌','✅ Included'],
+  ['85 FX Pairs + Event Impact','✓ Prices only','❌','❌','✅ + Impact'],
+  ['Sovereign Bond Yield Curves','✓ Extra cost','❌','✓ Limited','✅ Included'],
+  ['AI Impact Analyzer','✓ $50K extra','❌','✓ Palantir AI','✅ Included'],
+  ['Global Market Hours Clock','Partial','❌','❌','✅ Real-time'],
+  ['Self-Serve Signup','❌ Sales call','❌ Sales call','❌ Enterprise','✅ Instant'],
+  ['Works in Browser','❌ Terminal hw','✓ Some','✓ Web','✅ Any browser'],
+  ['Annual Cost (1 user)','$31,980','$12,000+','$100,000+','$1,188'],
+];
+const vsBody=document.getElementById('vs-body');
+vsData.forEach(row=>{
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td>${row[0]}</td><td style="color:var(--muted3)">${row[1]}</td><td style="color:var(--muted3)">${row[2]}</td><td style="color:var(--muted3)">${row[3]}</td><td class="vs-bold">${row[4]}</td>`;
+  vsBody.appendChild(tr);
+});
+
+// ══════════════════════════
+// DATA LAYERS
+// ══════════════════════════
+const layers=[
+  {i:'📰',n:'Regional News',d:'GDELT-powered geo-tagged headlines, 65 languages, 15-min updates.',t:'core'},
+  {i:'📈',n:'Stock Markets',d:'60+ global exchanges, indices, real-time quotes.',t:'core'},
+  {i:'🌤️',n:'Weather',d:'Live overlays, forecasts, severe weather alerts.',t:'core'},
+  {i:'🏚️',n:'Natural Disasters',d:'USGS, GDACS — earthquakes, floods, wildfires live.',t:'core'},
+  {i:'💰',n:'Economic Indicators',d:'GDP, CPI, unemployment — 217 countries via World Bank.',t:'core'},
+  {i:'🏦',n:'Central Bank Rates',d:'Policy rates, decisions, credit ratings globally.',t:'core'},
+  {i:'🔒',n:'Crime & Safety',d:'Incident data, safety indices, travel advisories.',t:'core'},
+  {i:'🏥',n:'Health & Outbreaks',d:'WHO alerts, disease surveillance worldwide.',t:'core'},
+  {i:'✈️',n:'Tourism & Travel',d:'Arrivals, advisories, hotel occupancy by destination.',t:'core'},
+  {i:'📅',n:'Economic Calendar',d:'All major releases with AI impact analysis — NEW.',t:'core'},
+  {i:'🏛️',n:'Gov Announcements',d:'40+ official government & central bank sources — NEW.',t:'core'},
+  {i:'🛢️',n:'Energy Commodities',d:'Brent, WTI, NatGas, LNG, Uranium — 8 energy prices.',t:'core'},
+  {i:'🥇',n:'Metals',d:'Gold, silver, copper, platinum, palladium, iron ore.',t:'core'},
+  {i:'🌾',n:'Agricultural',d:'Wheat, corn, soybeans, rice, cattle — 8 agri prices.',t:'core'},
+  {i:'☕',n:'Softs',d:'Coffee, sugar, cocoa, cotton, rubber — 6 soft commodities.',t:'core'},
+  {i:'💱',n:'FX Matrix',d:'85 currency pairs with economic event impact — NEW.',t:'core'},
+  {i:'📊',n:'Bond Yields',d:'Yield curves + recession signals for 20+ countries — NEW.',t:'core'},
+  {i:'⏰',n:'Market Clock',d:'Real-time global exchange hours and world clocks — NEW.',t:'core'},
+  {i:'⚔️',n:'Conflict & Unrest',d:'Geocoded protests and conflict events via ACLED.',t:'pro'},
+  {i:'🚢',n:'Trade & Shipping',d:'Vessel positions, port congestion, freight indices.',t:'pro'},
+  {i:'🌱',n:'ESG & Sustainability',d:'Carbon, air quality, deforestation, governance.',t:'pro'},
+  {i:'🛡️',n:'Sanctions & Compliance',d:'OFAC/EU sanctions, corruption indices, alerts.',t:'pro'},
+  {i:'👥',n:'Demographics',d:'Population density, urbanisation, income distribution.',t:'pro'},
+  {i:'📋',n:'Geopolitical Risk',d:'Composite risk scores, regime stability, sanctions.',t:'pro'},
+  {i:'🌍',n:'Migration & Labour',d:'ILO stats, migration flows, wage data for 190+ countries.',t:'pro'},
+  {i:'⚠️',n:'Supply Chain Alerts',d:'Port disruptions, factory shutdowns, freight disruption.',t:'pro'},
+  {i:'🏗️',n:'Real Estate',d:'Property prices, rental yields, vacancy rates.',t:'ent'},
+  {i:'💬',n:'Social Sentiment',d:'AI-aggregated public sentiment across 65 languages.',t:'ent'},
+  {i:'🛰️',n:'Satellite Imagery',d:'Nighttime lights, crop health, urban expansion.',t:'ent'},
+  {i:'💼',n:'FDI Flows',d:'Foreign direct investment by country and sector.',t:'ent'},
+];
+const tagN={core:'Core',pro:'Pro',ent:'Enterprise'};
+const tagC={core:'tc',pro:'tp',ent:'te'};
+const lg=document.getElementById('lgrid');
+layers.forEach((l,i)=>{
+  const d=document.createElement('div');d.className='lcard rv';d.dataset.tier=l.t;d.style.transitionDelay=(i%5*.06)+'s';
+  d.innerHTML=`<div class="li-ico">${l.i}</div><div class="li-n">${l.n}</div><div class="li-d">${l.d}</div><span class="ltag ${tagC[l.t]}">${tagN[l.t]}</span>`;
+  lg.appendChild(d);
+});
+function filterL(tier,btn){
+  document.querySelectorAll('.lf-b').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  document.querySelectorAll('.lcard').forEach(c=>c.classList.toggle('hidden',tier!=='all'&&c.dataset.tier!==tier));
+}
+
+// ══════════════════════════
+// PRICING
+// ══════════════════════════
+let pA=true;
+const plans=[
+  {n:'Explorer',mo:0,d:'Globe + core data layers forever free.',f:['3D interactive globe','Economic Calendar','Government announcements feed','Commodity prices (delay)','5 FX pairs','Global market clock','24h data delay'],off:['Bond yields','FX impact matrix','API'],ft:false},
+  {n:'Analyst',mo:99,d:'Full terminal for individual analysts.',f:['All 30 data layers','Near real-time data','85 FX pairs + impact','Bond yield curves','AI Impact Analyzer','Economic Calendar (all releases)','10 alerts / month','PDF export'],off:['API'],ft:true},
+  {n:'Professional',mo:299,d:'Power users and small teams.',f:['Everything in Analyst','API — 1,000 calls/month','Custom dashboards','50 alerts / month','3 team seats','Webhook + Slack alerts','Gov announcement API'],off:[],ft:false},
+  {n:'Enterprise',mo:null,d:'White-label, unlimited, custom data.',f:['Everything in Professional','Unlimited API','White-label embedding','SSO + audit logs','Custom data integrations','Dedicated account manager','Custom gov source tracking'],off:[],ft:false},
+];
+function renderPricing(){
+  const g=document.getElementById('pgrid');g.innerHTML='';
+  plans.forEach((p,i)=>{
+    const pr=p.mo===null?'Custom':p.mo===0?'$0':(pA?'$'+Math.round(p.mo*.8):'$'+p.mo);
+    const sub=p.mo===null?'Contact us':p.mo===0?'Forever free':(pA?`Billed $${Math.round(p.mo*.8*12)}/yr`:'Billed monthly');
+    const d=document.createElement('div');d.className='plan rv'+(p.ft?' ft':'');d.style.transitionDelay=(i*.07)+'s';
+    d.innerHTML=`${p.ft?'<div class="p-badge">Most popular</div>':''}<div class="p-name">${p.n}</div><div class="p-price">${pr}${p.mo!==null?'<sub>/mo</sub>':''}</div><div class="p-billing">${sub}</div><div class="p-desc">${p.d}</div><ul class="p-feats">${p.f.map(f=>`<li>${f}</li>`).join('')}${p.off.map(f=>`<li class="off">${f}</li>`).join('')}</ul><button class="p-btn${p.ft?' solid':''}" onclick="goWL()">${p.mo===null?'Contact sales':'Join waitlist'}</button>`;
+    g.appendChild(d);
+  });
+  obsR();
+}
+function toggleBilling(){pA=!pA;document.getElementById('p-toggle').classList.toggle('on',pA);renderPricing();}
+renderPricing();
+
+// ══════════════════════════
+// FAQ
+// ══════════════════════════
+const faqs=[
+  {q:'What government sources do you aggregate?',a:'We pull from 40+ authorized government and central bank sources including: Federal Reserve (federalreserve.gov), Bureau of Labor Statistics (bls.gov), Bureau of Economic Analysis (bea.gov), US Treasury (treasury.gov), ECB (ecb.europa.eu), Bank of England (bankofengland.co.uk), Bank of Japan (boj.or.jp), PBOC (pbc.gov.cn), Eurostat, UK ONS, Bundesbank, and many more. All links point to original official sources.'},
+  {q:'How is the economic calendar different from Bloomberg or Forex Factory?',a:'Planet News integrates economic releases with (1) direct links to official government source pages, (2) AI-powered impact analysis across equities, FX, bonds, and commodities for every release, (3) geo-contextualized presentation — you see the release on the map of the country it affects, alongside related news and risk signals. It\'s a complete intelligence workflow, not just a calendar.'},
+  {q:'How current is the data?',a:'Economic calendar events update within seconds of official release. Government announcements are aggregated within 5-15 minutes. Market data has a 15-minute delay on the free tier and near-real-time on paid plans. Commodity prices update every 15 minutes. FX and bond data update every minute on paid tiers.'},
+  {q:'Can I set alerts for specific economic events?',a:'Yes — you can set alerts for: specific countries or regions, specific data types (e.g. "All central bank decisions"), keyword combinations (e.g. "rate hike" + "Asia"), risk threshold crossings, and commodity price movements. Alerts are delivered via email, Slack, or webhook on Professional+ plans.'},
+  {q:'Does Planet News cover commodity futures or just spot prices?',a:'We cover both spot prices and nearby futures for all 50+ commodities. Energy includes crude, refined products, and natural gas. Metals covers precious and industrial. Agriculture covers grains, oilseeds, and livestock. Softs includes coffee, cocoa, sugar, and cotton. All linked to their geographic production regions on the globe.'},
+  {q:'How does the AI Impact Analyzer work?',a:'You paste any government announcement, economic release, or central bank statement into the analyzer. Our AI (powered by Claude) synthesizes the text against current market context and provides structured impact analysis across equities (with sector breakdown), FX (with specific pairs and magnitude), bonds (yield direction by tenor), and commodities. It\'s like having a sell-side analyst on call 24/7.'},
+  {q:'Do you support API access for all data modules?',a:'Yes — the Professional plan includes 1,000 API calls/month covering all data categories: economic calendar, government announcements, commodity prices, FX rates, bond yields, market hours, and geographic intelligence. The Enterprise plan provides unlimited API access with dedicated endpoints and custom SLAs.'},
+  {q:'How does pricing compare to Bloomberg Terminal?',a:'Bloomberg Terminal: $31,980/user/year + terminal hardware. Planet News Analyst: $99/month ($1,188/year). That\'s 27× cheaper per user. Additionally, Bloomberg\'s API costs $10K+/year extra, their commodity data costs extra by class, and their AI tools (Bloomberg Intelligence) add another $50K+. Planet News includes all of this in the base subscription.'},
+];
+const fgrid=document.getElementById('fgrid');
+faqs.forEach(f=>{
+  const d=document.createElement('div');d.className='fitem rv';
+  d.innerHTML=`<div class="fq" onclick="this.parentElement.classList.toggle('open')">${f.q}<span class="fq-icon">+</span></div><div class="fa"><p>${f.a}</p></div>`;
+  fgrid.appendChild(d);
+});
+
+// ══════════════════════════
+// STAT COUNTERS
+// ══════════════════════════
+const so=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){
+    const el=e.target,t=parseInt(el.dataset.t),s=el.dataset.s||'';
+    let c=0;const dur=1400,st=performance.now();
+    (function step(n){const p=Math.min((n-st)/dur,1);c=Math.round(p*t);
+      el.textContent=(t>=10000?c.toLocaleString():c)+s;if(p<1)requestAnimationFrame(step);})(st);
+    so.unobserve(el);
+  }});
+},{threshold:.5});
+document.querySelectorAll('.stat-n[data-t]').forEach(el=>so.observe(el));
+
+// SCROLL REVEAL
+function obsR(){
+  const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});},{threshold:.08});
+  document.querySelectorAll('.rv,.rvl,.rvr').forEach(el=>{if(!el.classList.contains('in'))obs.observe(el);});
+}
+obsR();
+
+// WAITLIST
+let wlc=124;
+function submitWL(e){
+  e.preventDefault();
+  const btn=document.getElementById('cta-btn');
+  btn.textContent='✓ You\'re on the list!';btn.style.background='#00bfa0';
+  wlc++;
+  document.getElementById('wlc2').textContent=wlc;
+  document.getElementById('wlcount').textContent=wlc+' analysts';
+  document.getElementById('cta-email').value='';
+  setTimeout(()=>{btn.textContent='Secure my spot →';btn.style.background='';},4000);
+}
+function goWL(){document.getElementById('cta').scrollIntoView({behavior:'smooth'});}
+</script>
+</body>
+</html>
