@@ -1,3 +1,24 @@
+planetnews/
+├── index.html
+├── assets/
+│   ├── logo.svg
+│   └── icons/
+├── css/
+│   ├── base.css
+│   ├── layout.css
+│   ├── components.css
+│   └── theme.css
+├── js/
+│   ├── app.js
+│   ├── config.js
+│   ├── market-clock.js
+│   ├── market-data.js
+│   ├── econ-calendar.js
+│   ├── ui-render.js
+│   └── utils.js
+└── data/
+    └── fallback.json
+
 Migration plan
 Do this in small steps so you do not break the whole site at once.
 
