@@ -1,0 +1,16 @@
+Migration plan
+Do this in small steps so you do not break the whole site at once.
+
+Keep your current index.html as the main page shell.
+
+Move all CSS out of the page into /css/ files.
+
+Move all existing inline JavaScript into /js/app.js first.
+
+Create market-clock.js and move only clock logic there.
+
+Create market-data.js and replace hardcoded rates, FX, and commodities with fetched or fallback values.
+
+Create econ-calendar.js for releases and central bank events.
+
+Add “Source,” “Last updated,” and “Live/Delayed/Demo” labels on each card so users know which content is truly current.
