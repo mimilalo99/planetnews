@@ -101,32 +101,34 @@
 
   /* ─── Main init ─────────────────────────────────────────────────────── */
   async function init() {
-    // 1. Market clock — live, self-refreshes every 60 s inside the module
+    // 1. Market clock — purely browser-based, renders instantly
     if (typeof initMarketClock === "function") {
       initMarketClock();
     }
+    // Hero market-status reads from clock DOM — give one tick to render
+    setTimeout(updateHeroMarketStatus, 50);
 
-    // Give clock a moment to render, then set hero status
-    setTimeout(updateHeroMarketStatus, 200);
+    // 2 & 3. Fire market data AND economic calendar IN PARALLEL
+    //    Neither waits for the other — whichever finishes first updates the UI
+    const [marketResult, econResult] = await Promise.allSettled([
+      (async () => {
+        const data = await fetchMarketData();
+        updateHeroPanel(data);
+        return data;
+      })(),
+      fetchEconomicData(),
+    ]);
 
-    // 2. Market data (FX, commodities, bonds) — fetched from external APIs
-    try {
-      const marketData = await fetchMarketData();
-      updateHeroPanel(marketData);
-    } catch (err) {
-      console.warn("[Planet News] Market data fetch error:", err);
-      // Show fallback values
-      const wtiEl = document.getElementById("hero-wti");
+    if (marketResult.status === "rejected") {
+      console.warn("[Planet News] Market data error:", marketResult.reason);
+      const wtiEl    = document.getElementById("hero-wti");
       const eurusdEl = document.getElementById("hero-eurusd");
-      if (wtiEl) wtiEl.textContent = "N/A";
+      if (wtiEl)    wtiEl.textContent    = "N/A";
       if (eurusdEl) eurusdEl.textContent = "N/A";
     }
 
-    // 3. Economic calendar + central bank feed
-    try {
-      await fetchEconomicData();
-    } catch (err) {
-      console.warn("[Planet News] Economic data fetch error:", err);
+    if (econResult.status === "rejected") {
+      console.warn("[Planet News] Economic data error:", econResult.reason);
     }
   }
 

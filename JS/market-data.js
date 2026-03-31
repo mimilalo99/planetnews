@@ -2,22 +2,29 @@
  * market-data.js — Planet News market data module
  *
  * Data sources:
- *  FX          → Frankfurter (ECB reference rates, free, no key, CORS-safe)
- *  Commodities → Stooq delayed CSV (free, no key)
- *  Bonds       → Stooq delayed CSV for US Treasury / Bund proxies
+ *  FX          → Frankfurter (ECB reference rates, free, CORS-safe)
+ *  Commodities → Stooq delayed CSV routed through allorigins CORS proxy
+ *  Bonds       → Stooq delayed CSV routed through allorigins CORS proxy
  *
- * Falls back to clearly-labelled Demo values if any source is unavailable.
+ * All three sources are fetched in PARALLEL so the first data appears
+ * as soon as the slowest of the three responds (not their sum).
+ *
  * Exposes: window.fetchMarketData()
  */
 
 (function () {
 
-  /* ─── Fallback data ──────────────────────────────────────────────── */
+  /* ─── CORS proxy (needed for Stooq on GitHub Pages / any HTTPS origin) ── */
+  function proxied(url) {
+    return `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+  }
+
+  /* ─── Fallback data ─────────────────────────────────────────────────── */
   const FALLBACK = {
     commodities: [
-      { name: "Gold",     value: "N/A" },
-      { name: "WTI Crude",value: "N/A" },
-      { name: "Brent",    value: "N/A" },
+      { name: "Gold",        value: "N/A" },
+      { name: "WTI Crude",   value: "N/A" },
+      { name: "Brent",       value: "N/A" },
       { name: "Natural Gas", value: "N/A" },
     ],
     fx: [
@@ -27,25 +34,25 @@
       { pair: "USD/CAD", value: "N/A" },
     ],
     bonds: [
-      { name: "US 10Y",  value: "N/A" },
-      { name: "US 2Y",   value: "N/A" },
-      { name: "DE 10Y",  value: "N/A" },
+      { name: "US 10Y", value: "N/A" },
+      { name: "US 2Y",  value: "N/A" },
+      { name: "DE 10Y", value: "N/A" },
     ],
   };
 
-  /* ─── DOM helpers ────────────────────────────────────────────────── */
+  /* ─── DOM helpers ───────────────────────────────────────────────────── */
   function setMeta(prefix, source, statusText) {
     const sourceEl  = document.getElementById(`${prefix}-source`);
     const updatedEl = document.getElementById(`${prefix}-updated`);
     const statusEl  = document.getElementById(`${prefix}-status`);
     if (sourceEl)  sourceEl.textContent  = `Source: ${source}`;
-    if (updatedEl) updatedEl.textContent = `Last updated: ${new Date().toLocaleString()}`;
+    if (updatedEl) updatedEl.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
     if (statusEl) {
       statusEl.textContent = statusText;
       statusEl.className   = "badge";
-      if (statusText === "Live")    statusEl.classList.add("badge-live");
+      if      (statusText === "Live")    statusEl.classList.add("badge-live");
       else if (statusText === "Delayed") statusEl.classList.add("badge-delayed");
-      else                           statusEl.classList.add("badge-demo");
+      else                               statusEl.classList.add("badge-demo");
     }
   }
 
@@ -53,17 +60,15 @@
     const el = document.getElementById(id);
     if (!el) return;
     el.innerHTML = items
-      .map(
-        (item) => `
+      .map(item => `
         <article class="mini-card">
           <h3>${item[labelKey]}</h3>
           <p>${item[valueKey]}</p>
-        </article>`
-      )
+        </article>`)
       .join("");
   }
 
-  /* ─── Fetch helpers ──────────────────────────────────────────────── */
+  /* ─── Fetch helpers ─────────────────────────────────────────────────── */
   async function getJson(url) {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -76,51 +81,50 @@
     return res.text();
   }
 
-  /* ─── Stooq CSV parser ───────────────────────────────────────────── */
+  /* ─── Stooq CSV via CORS proxy ──────────────────────────────────────── */
   async function stooqFetch(symbol) {
-    const url = `https://stooq.com/q/l/?s=${symbol}&f=sd2t2ohlcvn&e=csv`;
-    const csv  = await getText(url);
-    const lines   = csv.trim().split("\n");
-    const headers = lines[0].split(",");
-    const values  = (lines[1] || "").split(",");
+    const stooqUrl = `https://stooq.com/q/l/?s=${symbol}&f=sd2t2ohlcvn&e=csv`;
+    const csv      = await getText(proxied(stooqUrl));
+    const lines    = csv.trim().split("\n");
+    const headers  = lines[0].split(",");
+    const values   = (lines[1] || "").split(",");
     const closeIdx = headers.indexOf("Close");
-    const raw = values[closeIdx];
-    if (!raw || raw.trim() === "N/D") return null;
+    const raw      = values[closeIdx];
+    if (!raw || raw.trim() === "N/D" || raw.trim() === "") return null;
     return parseFloat(raw.trim());
   }
 
-  /* ─── FX — Frankfurter (ECB reference rates) ────────────────────── */
+  /* ─── FX — Frankfurter (ECB reference rates, direct, no proxy needed) ─ */
   async function fetchFX() {
-    // Base = EUR → USD rate is the real EUR/USD
-    const data = await getJson(
+    // Base = EUR → data.rates.USD is the real EUR/USD exchange rate
+    const data   = await getJson(
       "https://api.frankfurter.app/latest?from=EUR&to=USD,GBP,CHF,CAD,JPY,AUD"
     );
-
-    // USD/JPY: we have EUR/JPY; invert & cross: USD/JPY = EUR/JPY ÷ EUR/USD
     const eurUsd = data.rates.USD;
-    const usdJpy  = data.rates.JPY ? (data.rates.JPY / eurUsd) : null;
-    const gbpUsd  = data.rates.GBP ? (eurUsd / data.rates.GBP) : null;
-    const usdCad  = data.rates.CAD ? (data.rates.CAD / eurUsd) : null;
+    const usdJpy = data.rates.JPY ? (data.rates.JPY / eurUsd) : null;
+    const gbpUsd = data.rates.GBP ? (eurUsd / data.rates.GBP) : null;
+    const usdCad = data.rates.CAD ? (data.rates.CAD / eurUsd) : null;
 
     return [
-      { pair: "EUR/USD", value: eurUsd          ? eurUsd.toFixed(4)  : "N/A" },
-      { pair: "USD/JPY", value: usdJpy          ? usdJpy.toFixed(2)  : "N/A" },
-      { pair: "GBP/USD", value: gbpUsd          ? gbpUsd.toFixed(4)  : "N/A" },
-      { pair: "USD/CAD", value: usdCad          ? usdCad.toFixed(4)  : "N/A" },
+      { pair: "EUR/USD", value: eurUsd ? eurUsd.toFixed(4) : "N/A" },
+      { pair: "USD/JPY", value: usdJpy ? usdJpy.toFixed(2) : "N/A" },
+      { pair: "GBP/USD", value: gbpUsd ? gbpUsd.toFixed(4) : "N/A" },
+      { pair: "USD/CAD", value: usdCad ? usdCad.toFixed(4) : "N/A" },
     ];
   }
 
-  /* ─── Commodities — Stooq ────────────────────────────────────────── */
+  /* ─── Commodities — Stooq via proxy ────────────────────────────────── */
   async function fetchCommodities() {
     const symbols = [
-      { name: "Gold",        code: "xauusd",  prefix: "$", decimals: 2 },
-      { name: "WTI Crude",   code: "cl.f",    prefix: "$", decimals: 2 },
-      { name: "Brent",       code: "bz.f",    prefix: "$", decimals: 2 },
-      { name: "Natural Gas", code: "ng.f",    prefix: "$", decimals: 3 },
+      { name: "Gold",        code: "xauusd", prefix: "$", decimals: 2 },
+      { name: "WTI Crude",   code: "cl.f",   prefix: "$", decimals: 2 },
+      { name: "Brent",       code: "bz.f",   prefix: "$", decimals: 2 },
+      { name: "Natural Gas", code: "ng.f",   prefix: "$", decimals: 3 },
     ];
 
+    // Fetch all symbols concurrently
     return Promise.all(
-      symbols.map(async (item) => {
+      symbols.map(async item => {
         try {
           const val = await stooqFetch(item.code);
           if (val === null) return { name: item.name, value: "N/A" };
@@ -132,17 +136,16 @@
     );
   }
 
-  /* ─── Bonds — Stooq (government bond yield proxies) ─────────────── */
+  /* ─── Bond yields — Stooq via proxy ────────────────────────────────── */
   async function fetchBonds() {
-    // Stooq symbols for benchmark government bond yields (% p.a.)
     const symbols = [
-      { name: "US 10Y", code: "10ust.b" },
-      { name: "US 2Y",  code: "2ust.b"  },
+      { name: "US 10Y", code: "10ust.b"  },
+      { name: "US 2Y",  code: "2ust.b"   },
       { name: "DE 10Y", code: "10debt.b" },
     ];
 
     return Promise.all(
-      symbols.map(async (item) => {
+      symbols.map(async item => {
         try {
           const val = await stooqFetch(item.code);
           if (val === null) return { name: item.name, value: "N/A" };
@@ -154,44 +157,40 @@
     );
   }
 
-  /* ─── Main export ────────────────────────────────────────────────── */
+  /* ─── Main export — all three sources fetched IN PARALLEL ──────────── */
   window.fetchMarketData = async function fetchMarketData() {
-    let fx          = FALLBACK.fx;
-    let commodities = FALLBACK.commodities;
-    let bonds       = FALLBACK.bonds;
+    // Fire all three requests at exactly the same time
+    const [fxResult, commodResult, bondsResult] = await Promise.allSettled([
+      fetchFX(),
+      fetchCommodities(),
+      fetchBonds(),
+    ]);
 
-    /* FX */
-    try {
-      fx = await fetchFX();
-      renderGrid("fx-grid", fx, "pair", "value");
-      setMeta("fx", "Frankfurter / ECB", "Live");
-    } catch {
-      renderGrid("fx-grid", FALLBACK.fx, "pair", "value");
-      setMeta("fx", "Fallback", "Demo");
-    }
+    // FX
+    const fx = fxResult.status === "fulfilled" ? fxResult.value : FALLBACK.fx;
+    renderGrid("fx-grid", fx, "pair", "value");
+    setMeta("fx",
+      fxResult.status === "fulfilled" ? "Frankfurter / ECB"  : "Fallback",
+      fxResult.status === "fulfilled" ? "Live" : "Demo"
+    );
 
-    /* Commodities */
-    try {
-      commodities = await fetchCommodities();
-      renderGrid("commodities-grid", commodities, "name", "value");
-      // Stooq is end-of-day delayed
-      const anyLive = commodities.some((c) => c.value !== "N/A");
-      setMeta("commodities", "Stooq", anyLive ? "Delayed" : "Demo");
-    } catch {
-      renderGrid("commodities-grid", FALLBACK.commodities, "name", "value");
-      setMeta("commodities", "Fallback", "Demo");
-    }
+    // Commodities
+    const commodities = commodResult.status === "fulfilled" ? commodResult.value : FALLBACK.commodities;
+    renderGrid("commodities-grid", commodities, "name", "value");
+    const commodAnyLive = commodities.some(c => c.value !== "N/A");
+    setMeta("commodities",
+      commodResult.status === "fulfilled" && commodAnyLive ? "Stooq"    : "Fallback",
+      commodResult.status === "fulfilled" && commodAnyLive ? "Delayed"  : "Demo"
+    );
 
-    /* Bonds */
-    try {
-      bonds = await fetchBonds();
-      renderGrid("bonds-grid", bonds, "name", "value");
-      const anyLive = bonds.some((b) => b.value !== "N/A");
-      setMeta("bonds", "Stooq", anyLive ? "Delayed" : "Demo");
-    } catch {
-      renderGrid("bonds-grid", FALLBACK.bonds, "name", "value");
-      setMeta("bonds", "Fallback", "Demo");
-    }
+    // Bonds
+    const bonds = bondsResult.status === "fulfilled" ? bondsResult.value : FALLBACK.bonds;
+    renderGrid("bonds-grid", bonds, "name", "value");
+    const bondsAnyLive = bonds.some(b => b.value !== "N/A");
+    setMeta("bonds",
+      bondsResult.status === "fulfilled" && bondsAnyLive ? "Stooq"   : "Fallback",
+      bondsResult.status === "fulfilled" && bondsAnyLive ? "Delayed" : "Demo"
+    );
 
     return { fx, commodities, bonds };
   };
