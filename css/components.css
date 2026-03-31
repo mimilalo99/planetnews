@@ -43,6 +43,89 @@
   padding: 22px;
 }
 
+/* -----------------------------------------
+   Mini card: used by clock, FX, commodities,
+   bonds grids rendered by JS
+   ----------------------------------------- */
+.mini-card {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mini-card h3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mini-card p {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.mini-card .status-live {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--success);
+  letter-spacing: 0.04em;
+}
+
+.mini-card .status-delayed {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--warning);
+  letter-spacing: 0.04em;
+}
+
+/* -----------------------------------------
+   List card: used by economic calendar &
+   central bank feed rendered by JS
+   ----------------------------------------- */
+.list-card {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  display: grid;
+  gap: 6px;
+}
+
+.list-card h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.list-card p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.list-card a {
+  font-size: 0.8rem;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.list-card a:hover {
+  text-decoration: underline;
+}
+
+/* -----------------------------------------
+   Data items (alternative compact layout)
+   ----------------------------------------- */
 .data-item {
   padding: 14px;
   border-radius: 14px;
@@ -82,6 +165,9 @@
   color: var(--text-muted);
 }
 
+/* -----------------------------------------
+   Data meta bar at bottom of each card
+   ----------------------------------------- */
 .data-meta {
   margin-top: 16px;
   display: flex;
@@ -93,6 +179,9 @@
   padding-top: 14px;
 }
 
+/* -----------------------------------------
+   Pricing
+   ----------------------------------------- */
 .pricing-card {
   padding: 24px;
   display: grid;
@@ -121,6 +210,9 @@
   outline: 1px solid color-mix(in srgb, var(--primary) 55%, transparent);
 }
 
+/* -----------------------------------------
+   FAQ
+   ----------------------------------------- */
 .faq-item {
   padding: 18px 20px;
 }
@@ -135,13 +227,20 @@
   color: var(--text-muted);
 }
 
+/* -----------------------------------------
+   Empty / error state
+   ----------------------------------------- */
 .empty-state {
   padding: 18px;
   border-radius: 14px;
   border: 1px dashed var(--border);
   color: var(--text-faint);
+  font-size: 0.9rem;
 }
 
+/* -----------------------------------------
+   Responsive
+   ----------------------------------------- */
 @media (max-width: 640px) {
   .preview-row,
   .data-row {
