@@ -75,13 +75,16 @@
         <aside class="hero-panel card">
           <div class="card-head">
             <h2>Terminal preview</h2>
-            <span class="badge badge-demo">Preview</span>
+            <span class="badge badge-live">Live</span>
           </div>
           <div class="preview-stack">
             <div class="preview-row"><span>Market status</span><strong id="hero-market-status">Loading…</strong></div>
             <div class="preview-row"><span>Next release</span><strong id="hero-next-release">Loading…</strong></div>
             <div class="preview-row"><span>WTI crude</span><strong id="hero-wti">--</strong></div>
             <div class="preview-row"><span>EUR/USD</span><strong id="hero-eurusd">--</strong></div>
+          </div>
+          <div class="data-meta">
+            <span id="hero-updated">Last updated: --</span>
           </div>
         </aside>
       </div>
@@ -96,6 +99,8 @@
         </div>
 
         <div class="module-grid">
+
+          <!-- Market Clock — Live (system clock, no API needed) -->
           <article class="card data-card" id="market-clock">
             <div class="card-head">
               <h3>Market Clock</h3>
@@ -103,11 +108,12 @@
             </div>
             <div id="clock-grid" class="data-grid"></div>
             <div class="data-meta">
-              <span>Source: Internal clock logic</span>
+              <span>Source: Browser system clock</span>
               <span id="clock-updated">Last updated: --</span>
             </div>
           </article>
 
+          <!-- Economic Calendar — links to official release schedules -->
           <article class="card data-card" id="economic-calendar">
             <div class="card-head">
               <h3>Economic Calendar</h3>
@@ -120,10 +126,24 @@
             </div>
           </article>
 
+          <!-- Central Bank Updates — Fed + ECB RSS -->
+          <article class="card data-card" id="central-bank">
+            <div class="card-head">
+              <h3>Central Bank Updates</h3>
+              <span class="badge badge-live" id="gov-status">Live</span>
+            </div>
+            <div id="gov-feed-list" class="data-stack"></div>
+            <div class="data-meta">
+              <span id="gov-source">Source: --</span>
+              <span id="gov-updated">Last updated: --</span>
+            </div>
+          </article>
+
+          <!-- Commodities — Stooq delayed feed -->
           <article class="card data-card" id="commodities">
             <div class="card-head">
               <h3>Commodities</h3>
-              <span class="badge badge-demo" id="commodities-status">Demo</span>
+              <span class="badge badge-demo" id="commodities-status">Loading</span>
             </div>
             <div id="commodities-grid" class="data-grid"></div>
             <div class="data-meta">
@@ -132,10 +152,11 @@
             </div>
           </article>
 
+          <!-- FX Matrix — Frankfurter live rates -->
           <article class="card data-card" id="fx">
             <div class="card-head">
               <h3>FX Matrix</h3>
-              <span class="badge badge-demo" id="fx-status">Demo</span>
+              <span class="badge badge-demo" id="fx-status">Loading</span>
             </div>
             <div id="fx-grid" class="data-grid"></div>
             <div class="data-meta">
@@ -144,10 +165,11 @@
             </div>
           </article>
 
+          <!-- Bond Yields — Stooq delayed feed -->
           <article class="card data-card" id="bonds">
             <div class="card-head">
               <h3>Bond Yields</h3>
-              <span class="badge badge-demo" id="bonds-status">Demo</span>
+              <span class="badge badge-demo" id="bonds-status">Loading</span>
             </div>
             <div id="bonds-grid" class="data-grid"></div>
             <div class="data-meta">
@@ -155,10 +177,49 @@
               <span id="bonds-updated">Last updated: --</span>
             </div>
           </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing placeholder -->
+    <section class="section" id="pricing">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">Pricing</p>
+          <h2>Simple, transparent plans</h2>
+          <p>Coming soon. Join the waitlist to be notified when pricing is live.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Waitlist -->
+    <section class="section" id="waitlist">
+      <div class="container">
+        <div class="card waitlist-card">
+          <div>
+            <h2>Join the waitlist</h2>
+            <p style="color:var(--text-muted);margin-top:8px;">Be first to access Planet News when it launches.</p>
+          </div>
+          <form class="waitlist-form" novalidate>
+            <input type="email" placeholder="your@email.com" aria-label="Email address" />
+            <button type="submit" class="btn btn-primary">Notify me</button>
+          </form>
         </div>
       </div>
     </section>
   </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>© 2025 Planet News. All rights reserved.</span>
+      <nav aria-label="Footer">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Contact</a>
+      </nav>
+    </div>
+  </footer>
 
   <script src="./js/market-clock.js" defer></script>
   <script src="./js/market-data.js" defer></script>
