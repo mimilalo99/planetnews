@@ -1,101 +1,131 @@
-window.PlanetMarketData = (() => {
+(function () {
   const fallbackData = {
-    source: "Fallback demo data",
-    updatedAt: new Date().toLocaleString(),
-    status: "Demo",
     commodities: [
-      { label: "WTI Crude", value: "78.42", change: "+0.84%" },
-      { label: "Brent", value: "82.15", change: "+0.61%" },
-      { label: "Gold", value: "2188.30", change: "-0.22%" },
-      { label: "Natural Gas", value: "2.14", change: "+1.12%" }
+      { name: "Gold", value: "Fallback only", symbol: "XAU" },
+      { name: "WTI Crude", value: "Fallback only", symbol: "CL" },
+      { name: "Brent", value: "Fallback only", symbol: "BRN" }
     ],
     fx: [
-      { label: "EUR/USD", value: "1.0834", change: "+0.15%" },
-      { label: "USD/JPY", value: "149.28", change: "-0.34%" },
-      { label: "GBP/USD", value: "1.2716", change: "+0.08%" },
-      { label: "USD/CAD", value: "1.3511", change: "-0.18%" }
+      { pair: "EUR/USD", value: "Fallback only" },
+      { pair: "USD/JPY", value: "Fallback only" },
+      { pair: "GBP/USD", value: "Fallback only" }
     ],
     bonds: [
-      { label: "US 2Y", value: "4.19%", change: "+2 bps" },
-      { label: "US 10Y", value: "4.03%", change: "-1 bp" },
-      { label: "Germany 10Y", value: "2.34%", change: "+1 bp" },
-      { label: "UK 10Y", value: "4.07%", change: "+3 bps" }
+      { name: "US 10Y", value: "Fallback only" },
+      { name: "US 2Y", value: "Fallback only" },
+      { name: "DE 10Y", value: "Fallback only" }
     ]
   };
 
-  async function init() {
-    const data = await fetchMarketData();
-    renderGroup("commodities-grid", data.commodities);
-    renderGroup("fx-grid", data.fx);
-    renderGroup("bonds-grid", data.bonds);
-
-    setMeta("commodities", data.source, data.updatedAt, data.status);
-    setMeta("fx", data.source, data.updatedAt, data.status);
-    setMeta("bonds", data.source, data.updatedAt, data.status);
-
-    updateHeroPreview(data);
+  async function fetchJson(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+    return res.json();
   }
 
-  async function fetchMarketData() {
-    try {
-      return fallbackData;
-    } catch (error) {
-      return fallbackData;
-    }
+  async function fetchText(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+    return res.text();
   }
 
-  function renderGroup(targetId, items) {
-    const target = document.getElementById(targetId);
-    if (!target) return;
-
-    target.innerHTML = items.map((item) => {
-      const direction = getDirection(item.change);
-      return `
-        <div class="data-item">
-          <span class="data-item-label">${item.label}</span>
-          <span class="data-item-value">${item.value}</span>
-          <span class="data-item-change ${direction}">${item.change}</span>
-        </div>
-      `;
-    }).join("");
-  }
-
-  function setMeta(prefix, source, updatedAt, status) {
+  function setMeta(prefix, source, statusText) {
     const sourceEl = document.getElementById(`${prefix}-source`);
     const updatedEl = document.getElementById(`${prefix}-updated`);
     const statusEl = document.getElementById(`${prefix}-status`);
 
     if (sourceEl) sourceEl.textContent = `Source: ${source}`;
-    if (updatedEl) updatedEl.textContent = `Last updated: ${updatedAt}`;
-    if (statusEl) {
-      statusEl.textContent = status;
-      statusEl.className = `badge ${statusToBadge(status)}`;
+    if (updatedEl) updatedEl.textContent = `Last updated: ${new Date().toLocaleString()}`;
+    if (statusEl) statusEl.textContent = statusText;
+  }
+
+  function renderGrid(id, items, labelKey = "name", valueKey = "value") {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = items.map(item => `
+      <article class="mini-card">
+        <h3>${item[labelKey]}</h3>
+        <p>${item[valueKey]}</p>
+      </article>
+    `).join("");
+  }
+
+  async function fetchFX() {
+    const data = await fetchJson("https://api.frankfurter.app/latest?from=USD&to=EUR,JPY,GBP,CAD,CHF,AUD");
+    return [
+      { pair: "USD/EUR", value: data.rates.EUR },
+      { pair: "USD/JPY", value: data.rates.JPY },
+      { pair: "USD/GBP", value: data.rates.GBP },
+      { pair: "USD/CAD", value: data.rates.CAD }
+    ];
+  }
+
+  async function fetchCommodities() {
+    const symbols = [
+      { name: "Gold", code: "xauusd" },
+      { name: "WTI Crude", code: "cl.f" },
+      { name: "Brent", code: "bz.f" }
+    ];
+
+    const results = await Promise.all(symbols.map(async item => {
+      try {
+        const csv = await fetchText(`https://stooq.com/q/l/?s=${item.code}&f=sd2t2ohlcvn&e=csv`);
+        const lines = csv.trim().split("\n");
+        const headers = lines[0].split(",");
+        const values = lines[1]?.split(",") || [];
+        const closeIdx = headers.indexOf("Close");
+        return {
+          name: item.name,
+          value: values[closeIdx] || "N/A"
+        };
+      } catch {
+        return { name: item.name, value: "Unavailable" };
+      }
+    }));
+
+    return results;
+  }
+
+  async function fetchBonds() {
+    return [
+      { name: "US 10Y", value: "Use Treasury/FRED feed" },
+      { name: "US 2Y", value: "Use Treasury/FRED feed" },
+      { name: "DE 10Y", value: "Add official ECB or market proxy" }
+    ];
+  }
+
+  window.fetchMarketData = async function fetchMarketData() {
+    let fx = fallbackData.fx;
+    let commodities = fallbackData.commodities;
+    let bonds = fallbackData.bonds;
+
+    try {
+      fx = await fetchFX();
+      renderGrid("fx-grid", fx, "pair", "value");
+      setMeta("fx", "Frankfurter", "Live");
+    } catch {
+      renderGrid("fx-grid", fx, "pair", "value");
+      setMeta("fx", "Fallback", "Demo");
     }
-  }
 
-  function updateHeroPreview(data) {
-    const wti = data.commodities.find((item) => item.label === "WTI Crude");
-    const eurusd = data.fx.find((item) => item.label === "EUR/USD");
+    try {
+      commodities = await fetchCommodities();
+      renderGrid("commodities-grid", commodities, "name", "value");
+      setMeta("commodities", "Stooq", "Delayed");
+    } catch {
+      renderGrid("commodities-grid", commodities, "name", "value");
+      setMeta("commodities", "Fallback", "Demo");
+    }
 
-    const wtiEl = document.getElementById("hero-wti");
-    const eurusdEl = document.getElementById("hero-eurusd");
+    try {
+      bonds = await fetchBonds();
+      renderGrid("bonds-grid", bonds, "name", "value");
+      setMeta("bonds", "Configured feed", "Delayed");
+    } catch {
+      renderGrid("bonds-grid", bonds, "name", "value");
+      setMeta("bonds", "Fallback", "Demo");
+    }
 
-    if (wtiEl && wti) wtiEl.textContent = wti.value;
-    if (eurusdEl && eurusd) eurusdEl.textContent = eurusd.value;
-  }
-
-  function getDirection(change) {
-    if (String(change).trim().startsWith("+")) return "up";
-    if (String(change).trim().startsWith("-")) return "down";
-    return "flat";
-  }
-
-  function statusToBadge(status) {
-    const normalized = String(status).toLowerCase();
-    if (normalized === "live") return "badge-live";
-    if (normalized === "delayed") return "badge-delayed";
-    return "badge-demo";
-  }
-
-  return { init };
+    return { fx, commodities, bonds };
+  };
 })();
