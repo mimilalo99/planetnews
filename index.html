@@ -4,26 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Planet News</title>
-  <meta
-    name="description"
-    content="Planet News is a browser-based macro and market intelligence platform with market clocks, economic releases, commodities, FX, bond yields, and AI-assisted analysis."
-  />
+  <meta name="description" content="Planet News is a browser-based macro and market intelligence platform with market clocks, economic releases, commodities, FX, bond yields, and AI-assisted analysis." />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-    rel="stylesheet"
-  />
+  <!-- Fonts -->
+  //fonts.googleapis.com">
+  //fonts.gstatic.com" crossorigin>
+  //fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./css/base.css" />
-  <link rel="stylesheet" href="./css/layout.css" />
-  <link rel="stylesheet" href="./css/components.css" />
-  <link rel="stylesheet" href="./css/theme.css" />
+  <!-- CSS -->
+  /css/base.css">
+  /css/theme.css">
+  /css/layout.css">
+  /css/components.css">
 </head>
 <body>
+  <!-- Skip link -->
   <a class="skip-link" href="#main-content">Skip to content</a>
 
+  <!-- Header -->
   <header class="site-header">
     <div class="container header-inner">
       <a href="#top" class="brand" aria-label="Planet News home">
@@ -31,7 +29,7 @@
         <span class="brand-text">Planet News</span>
       </a>
 
-      <nav class="site-nav" aria-label="Primary">
+      <nav class="site-nav" aria-label="Primary navigation">
         <a href="#market-clock">Market Clock</a>
         <a href="#economic-calendar">Calendar</a>
         <a href="#commodities">Commodities</a>
@@ -41,15 +39,19 @@
       </nav>
 
       <div class="header-actions">
-        <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle theme">
-          Theme
+        <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle dark/light theme">
+          <span class="theme-icon" aria-hidden="true"></span>
+          <span class="theme-label">Theme</span>
         </button>
         <a href="#waitlist" class="btn btn-primary">Join Waitlist</a>
       </div>
     </div>
   </header>
 
+  <!-- Main content -->
   <main id="main-content">
+
+    <!-- Hero Section -->
     <section class="hero section" id="top">
       <div class="container hero-grid">
         <div class="hero-copy">
@@ -66,18 +68,19 @@
           </div>
 
           <ul class="hero-points" role="list">
-            <li>Market clocks and global session view</li>
-            <li>Economic calendar and policy events</li>
-            <li>Commodity, FX, and bond market monitoring</li>
+            >Market clocks and global session view</li>
+            >Economic calendar and policy events</li>
+            >Commodity, FX, and bond market monitoring</li>
           </ul>
         </div>
 
-        <aside class="hero-panel card">
+        <!-- Hero Terminal Preview Panel -->
+        <aside class="hero-panel card" aria-label="Terminal preview">
           <div class="card-head">
             <h2>Terminal preview</h2>
             <span class="badge badge-demo">Preview</span>
           </div>
-          <div class="preview-stack">
+          <div class="preview-stack" data-hook="hero-preview">
             <div class="preview-row">
               <span>Market status</span>
               <strong id="hero-market-status">Loading…</strong>
@@ -88,17 +91,18 @@
             </div>
             <div class="preview-row">
               <span>WTI crude</span>
-              <strong id="hero-wti">--</strong>
+              <strong id="hero-wti" data-hook="hero-wti">--</strong>
             </div>
             <div class="preview-row">
               <span>EUR/USD</span>
-              <strong id="hero-eurusd">--</strong>
+              <strong id="hero-eurusd" data-hook="hero-eurusd">--</strong>
             </div>
           </div>
         </aside>
       </div>
     </section>
 
+    <!-- Product Preview / Modules Section -->
     <section class="section" id="product-preview">
       <div class="container">
         <div class="section-head">
@@ -111,87 +115,96 @@
         </div>
 
         <div class="module-grid">
-          <article class="card data-card" id="market-clock">
+
+          <!-- Market Clock Card -->
+          <article class="card data-card" id="market-clock" data-module="clock">
             <div class="card-head">
               <h3>Market Clock</h3>
-              <span class="badge badge-live" id="clock-status">Live</span>
+              <span class="badge badge-live" id="clock-status" data-hook="clock-status">Live</span>
             </div>
-            <div id="clock-grid" class="data-grid"></div>
+            <div id="clock-grid" class="data-grid" data-hook="clock-grid"></div>
             <div class="data-meta">
-              <span>Source: Internal clock logic</span>
-              <span id="clock-updated">Last updated: --</span>
+              <span class="data-source">Source: Internal clock logic</span>
+              <span id="clock-updated" class="data-updated" data-hook="clock-updated">Last updated: --</span>
             </div>
           </article>
 
-          <article class="card data-card" id="economic-calendar">
+          <!-- Economic Calendar Card -->
+          <article class="card data-card" id="economic-calendar" data-module="calendar">
             <div class="card-head">
               <h3>Economic Calendar</h3>
-              <span class="badge badge-delayed" id="calendar-status">Delayed</span>
+              <span class="badge badge-delayed" id="calendar-status" data-hook="calendar-status">Delayed</span>
             </div>
-            <div id="calendar-list" class="data-stack"></div>
+            <div id="calendar-list" class="data-stack" data-hook="calendar-list"></div>
             <div class="data-meta">
-              <span id="calendar-source">Source: --</span>
-              <span id="calendar-updated">Last updated: --</span>
+              <span id="calendar-source" class="data-source" data-hook="calendar-source">Source: --</span>
+              <span id="calendar-updated" class="data-updated" data-hook="calendar-updated">Last updated: --</span>
             </div>
           </article>
 
-          <article class="card data-card" id="commodities">
+          <!-- Commodities Card -->
+          <article class="card data-card" id="commodities" data-module="commodities">
             <div class="card-head">
               <h3>Commodities</h3>
-              <span class="badge badge-demo" id="commodities-status">Demo</span>
+              <span class="badge badge-demo" id="commodities-status" data-hook="commodities-status">Demo</span>
             </div>
-            <div id="commodities-grid" class="data-grid"></div>
+            <div id="commodities-grid" class="data-grid" data-hook="commodities-grid"></div>
             <div class="data-meta">
-              <span id="commodities-source">Source: --</span>
-              <span id="commodities-updated">Last updated: --</span>
+              <span id="commodities-source" class="data-source" data-hook="commodities-source">Source: --</span>
+              <span id="commodities-updated" class="data-updated" data-hook="commodities-updated">Last updated: --</span>
             </div>
           </article>
 
-          <article class="card data-card" id="fx">
+          <!-- FX Matrix Card -->
+          <article class="card data-card" id="fx" data-module="fx">
             <div class="card-head">
               <h3>FX Matrix</h3>
-              <span class="badge badge-demo" id="fx-status">Demo</span>
+              <span class="badge badge-demo" id="fx-status" data-hook="fx-status">Demo</span>
             </div>
-            <div id="fx-grid" class="data-grid"></div>
+            <div id="fx-grid" class="data-grid" data-hook="fx-grid"></div>
             <div class="data-meta">
-              <span id="fx-source">Source: --</span>
-              <span id="fx-updated">Last updated: --</span>
+              <span id="fx-source" class="data-source" data-hook="fx-source">Source: --</span>
+              <span id="fx-updated" class="data-updated" data-hook="fx-updated">Last updated: --</span>
             </div>
           </article>
 
-          <article class="card data-card" id="bonds">
+          <!-- Bond Yields Card -->
+          <article class="card data-card" id="bonds" data-module="bonds">
             <div class="card-head">
               <h3>Bond Yields</h3>
-              <span class="badge badge-demo" id="bonds-status">Demo</span>
+              <span class="badge badge-demo" id="bonds-status" data-hook="bonds-status">Demo</span>
             </div>
-            <div id="bonds-grid" class="data-grid"></div>
+            <div id="bonds-grid" class="data-grid" data-hook="bonds-grid"></div>
             <div class="data-meta">
-              <span id="bonds-source">Source: --</span>
-              <span id="bonds-updated">Last updated: --</span>
+              <span id="bonds-source" class="data-source" data-hook="bonds-source">Source: --</span>
+              <span id="bonds-updated" class="data-updated" data-hook="bonds-updated">Last updated: --</span>
             </div>
           </article>
 
-          <article class="card data-card" id="government-feed">
+          <!-- Government Feed Card -->
+          <article class="card data-card" id="government-feed" data-module="govfeed">
             <div class="card-head">
-              <h3>Government & Central Bank Feed</h3>
-              <span class="badge badge-delayed" id="gov-status">Delayed</span>
+              <h3>Government &amp; Central Bank Feed</h3>
+              <span class="badge badge-delayed" id="gov-status" data-hook="gov-status">Delayed</span>
             </div>
-            <div id="gov-feed-list" class="data-stack"></div>
+            <div id="gov-feed-list" class="data-stack" data-hook="gov-feed-list"></div>
             <div class="data-meta">
-              <span id="gov-source">Source: --</span>
-              <span id="gov-updated">Last updated: --</span>
+              <span id="gov-source" class="data-source" data-hook="gov-source">Source: --</span>
+              <span id="gov-updated" class="data-updated" data-hook="gov-updated">Last updated: --</span>
             </div>
           </article>
+
         </div>
       </div>
     </section>
 
+    <!-- Pricing Section -->
     <section class="section" id="pricing">
       <div class="container">
         <div class="section-head">
           <p class="eyebrow">Pricing</p>
           <h2>Simple access tiers</h2>
-          <p>Keep this section focused and easy to compare.</p>
+          <p>Choose the plan that fits your workflow.</p>
         </div>
 
         <div class="pricing-grid">
@@ -199,20 +212,21 @@
             <h3>Starter</h3>
             <p class="price">$29<span>/mo</span></p>
             <ul role="list">
-              <li>Market clock</li>
-              <li>Basic release calendar</li>
-              <li>Selected macro snapshots</li>
+              >Market clock</li>
+              >Basic release calendar</li>
+              >Selected macro snapshots</li>
             </ul>
             <a href="#waitlist" class="btn btn-secondary">Get Started</a>
           </article>
 
           <article class="card pricing-card featured">
+            <div class="badge-ribbon">Most Popular</div>
             <h3>Pro</h3>
             <p class="price">$99<span>/mo</span></p>
             <ul role="list">
-              <li>Full macro dashboard</li>
-              <li>Commodities, FX, yields</li>
-              <li>Advanced alerts and workflows</li>
+              >Full macro dashboard</li>
+              >Commodities, FX, yields</li>
+              >Advanced alerts and workflows</li>
             </ul>
             <a href="#waitlist" class="btn btn-primary">Join Waitlist</a>
           </article>
@@ -221,9 +235,9 @@
             <h3>Team</h3>
             <p class="price">Custom</p>
             <ul role="list">
-              <li>Shared watchlists</li>
-              <li>Alert routing</li>
-              <li>Priority onboarding</li>
+              >Shared watchlists</li>
+              >Alert routing</li>
+              >Priority onboarding</li>
             </ul>
             <a href="#waitlist" class="btn btn-secondary">Contact Sales</a>
           </article>
@@ -231,6 +245,7 @@
       </div>
     </section>
 
+    <!-- FAQ Section -->
     <section class="section" id="faq">
       <div class="container section-head">
         <p class="eyebrow">FAQ</p>
@@ -239,51 +254,76 @@
 
       <div class="container faq-list">
         <details class="card faq-item">
-          <summary>Is this data live?</summary>
+          <summary>
+            <span>Is this data live?</span>
+            <span class="faq-toggle" aria-hidden="true">+</span>
+          </summary>
           <p>
-            Each module displays a status label so users can distinguish live,
-            delayed, and demo values.
+            Each module displays a status label so you can distinguish live,
+            delayed, and demo values. Check the badge and source label on every card.
           </p>
         </details>
 
         <details class="card faq-item">
-          <summary>What sources do you use?</summary>
+          <summary>
+            <span>What sources do you use?</span>
+            <span class="faq-toggle" aria-hidden="true">+</span>
+          </summary>
           <p>
             Each card includes a source label and a last-updated timestamp.
+            We pull from official feeds (BLS, Fed, ECB) and market APIs.
           </p>
         </details>
 
         <details class="card faq-item">
-          <summary>Does this replace Bloomberg?</summary>
+          <summary>
+            <span>Does this replace Bloomberg?</span>
+            <span class="faq-toggle" aria-hidden="true">+</span>
+          </summary>
           <p>
-            Position it as a browser-based alternative for focused workflows unless
-            you can prove broader claims.
+            We position Planet News as a browser-based alternative for focused
+            macro workflows, not a full Bloomberg terminal replacement.
           </p>
         </details>
       </div>
     </section>
 
+    <!-- Waitlist Section -->
     <section class="section waitlist-section" id="waitlist">
       <div class="container waitlist-card card">
-        <div>
+        <div class="waitlist-copy">
           <p class="eyebrow">Get access</p>
           <h2>Join the Planet News waitlist</h2>
           <p>Collect interest first, then expand product depth with live modules.</p>
         </div>
 
-        <form class="waitlist-form">
-          <label class="sr-only" for="email">Email address</label>
-          <input id="email" name="email" type="email" placeholder="Email address" />
-          <button type="submit" class="btn btn-primary">Join</button>
+        <form class="waitlist-form" data-hook="waitlist-form" novalidate>
+          abel class="sr-only" for="waitlist-email">Email address</label>
+          <input
+            id="waitlist-email"
+            name="email"
+            type="email"
+            placeholder="Email address"
+            autocomplete="email"
+            required
+            aria-required="true"
+            data-hook="waitlist-email"
+          />
+          <button type="submit" class="btn btn-primary" data-hook="waitlist-submit">
+            Join
+          </button>
+          <p class="form-message" data-hook="waitlist-message" aria-live="polite"></p>
         </form>
       </div>
     </section>
+
   </main>
 
+  <!-- Footer -->
   <footer class="site-footer">
     <div class="container footer-inner">
       <p>© 2026 Planet News</p>
-      <nav aria-label="Footer">
+      <nav aria-label="Footer navigation">
         <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
         <a href="#waitlist">Waitlist</a>
@@ -291,9 +331,12 @@
     </div>
   </footer>
 
-  <script src="./js/market-clock.js" defer></script>
-  <script src="./js/market-data.js" defer></script>
-  <script src="./js/econ-calendar.js" defer></script>
-  <script src="./js/app.js" defer></script>
+  <!-- JavaScript Modules (case-sensitive: JS/ not js/) -->
+  <script src="./JS/config.js" defer></script>
+  <script src="./JS/utils.js" defer></script>
+  <script src="./JS/market-clock.js" defer></script>
+  <script src="./JS/market-data.js" defer></script>
+  <script src="./JS/econ-calendar.js" defer></script>
+  <script src="./JS/app.js" defer></script>
 </body>
 </html>
