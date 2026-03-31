@@ -1,80 +1,131 @@
-window.PlanetClock = (() => {
-  const markets = [
-    { name: "New York", timezone: "America/New_York", open: 9, close: 16 },
-    { name: "London", timezone: "Europe/London", open: 8, close: 16.5 },
-    { name: "Frankfurt", timezone: "Europe/Berlin", open: 9, close: 17.5 },
-    { name: "Tokyo", timezone: "Asia/Tokyo", open: 9, close: 15 },
-    { name: "Sydney", timezone: "Australia/Sydney", open: 10, close: 16 }
-  ];
+(function () {
+  const fallbackData = {
+    commodities: [
+      { name: "Gold", value: "Fallback only", symbol: "XAU" },
+      { name: "WTI Crude", value: "Fallback only", symbol: "CL" },
+      { name: "Brent", value: "Fallback only", symbol: "BRN" }
+    ],
+    fx: [
+      { pair: "EUR/USD", value: "Fallback only" },
+      { pair: "USD/JPY", value: "Fallback only" },
+      { pair: "GBP/USD", value: "Fallback only" }
+    ],
+    bonds: [
+      { name: "US 10Y", value: "Fallback only" },
+      { name: "US 2Y", value: "Fallback only" },
+      { name: "DE 10Y", value: "Fallback only" }
+    ]
+  };
 
-  let timer = null;
-
-  function init() {
-    render();
-    timer = setInterval(render, 1000);
+  async function fetchJson(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+    return res.json();
   }
 
-  function render() {
-    const grid = document.getElementById("clock-grid");
-    const updated = document.getElementById("clock-updated");
-    const heroStatus = document.getElementById("hero-market-status");
+  async function fetchText(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+    return res.text();
+  }
 
-    if (!grid) return;
+  function setMeta(prefix, source, statusText) {
+    const sourceEl = document.getElementById(`${prefix}-source`);
+    const updatedEl = document.getElementById(`${prefix}-updated`);
+    const statusEl = document.getElementById(`${prefix}-status`);
 
-    grid.innerHTML = markets.map((market) => {
-      const now = getZonedDateParts(market.timezone);
-      const decimalHour = now.hour + now.minute / 60;
-      const isOpen = decimalHour >= market.open && decimalHour < market.close;
+    if (sourceEl) sourceEl.textContent = `Source: ${source}`;
+    if (updatedEl) updatedEl.textContent = `Last updated: ${new Date().toLocaleString()}`;
+    if (statusEl) statusEl.textContent = statusText;
+  }
 
-      return `
-        <div class="data-item">
-          <span class="data-item-label">${market.name}</span>
-          <span class="data-item-value">${now.time}</span>
-          <span class="data-item-change ${isOpen ? "up" : "flat"}">
-            ${isOpen ? "Open" : "Closed"}
-          </span>
-        </div>
-      `;
-    }).join("");
+  function renderGrid(id, items, labelKey = "name", valueKey = "value") {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = items.map(item => `
+      <article class="mini-card">
+        <h3>${item[labelKey]}</h3>
+        <p>${item[valueKey]}</p>
+      </article>
+    `).join("");
+  }
 
-    const openMarkets = markets.filter((market) => {
-      const now = getZonedDateParts(market.timezone);
-      const decimalHour = now.hour + now.minute / 60;
-      return decimalHour >= market.open && decimalHour < market.close;
-    });
+  async function fetchFX() {
+    const data = await fetchJson("https://api.frankfurter.app/latest?from=USD&to=EUR,JPY,GBP,CAD,CHF,AUD");
+    return [
+      { pair: "USD/EUR", value: data.rates.EUR },
+      { pair: "USD/JPY", value: data.rates.JPY },
+      { pair: "USD/GBP", value: data.rates.GBP },
+      { pair: "USD/CAD", value: data.rates.CAD }
+    ];
+  }
 
-    if (heroStatus) {
-      heroStatus.textContent = openMarkets.length
-        ? `${openMarkets.length} major markets open`
-        : "Major markets mostly closed";
+  async function fetchCommodities() {
+    const symbols = [
+      { name: "Gold", code: "xauusd" },
+      { name: "WTI Crude", code: "cl.f" },
+      { name: "Brent", code: "bz.f" }
+    ];
+
+    const results = await Promise.all(symbols.map(async item => {
+      try {
+        const csv = await fetchText(`https://stooq.com/q/l/?s=${item.code}&f=sd2t2ohlcvn&e=csv`);
+        const lines = csv.trim().split("\n");
+        const headers = lines[0].split(",");
+        const values = lines[1]?.split(",") || [];
+        const closeIdx = headers.indexOf("Close");
+        return {
+          name: item.name,
+          value: values[closeIdx] || "N/A"
+        };
+      } catch {
+        return { name: item.name, value: "Unavailable" };
+      }
+    }));
+
+    return results;
+  }
+
+  async function fetchBonds() {
+    return [
+      { name: "US 10Y", value: "Use Treasury/FRED feed" },
+      { name: "US 2Y", value: "Use Treasury/FRED feed" },
+      { name: "DE 10Y", value: "Add official ECB or market proxy" }
+    ];
+  }
+
+  window.fetchMarketData = async function fetchMarketData() {
+    let fx = fallbackData.fx;
+    let commodities = fallbackData.commodities;
+    let bonds = fallbackData.bonds;
+
+    try {
+      fx = await fetchFX();
+      renderGrid("fx-grid", fx, "pair", "value");
+      setMeta("fx", "Frankfurter", "Live");
+    } catch {
+      renderGrid("fx-grid", fx, "pair", "value");
+      setMeta("fx", "Fallback", "Demo");
     }
 
-    if (updated) {
-      updated.textContent = `Last updated: ${new Date().toLocaleString()}`;
+    try {
+      commodities = await fetchCommodities();
+      renderGrid("commodities-grid", commodities, "name", "value");
+      setMeta("commodities", "Stooq", "Delayed");
+    } catch {
+      renderGrid("commodities-grid", commodities, "name", "value");
+      setMeta("commodities", "Fallback", "Demo");
     }
-  }
 
-  function getZonedDateParts(timezone) {
-    const formatter = new Intl.DateTimeFormat("en-US", {
-      timeZone: timezone,
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false
-    });
+    try {
+      bonds = await fetchBonds();
+      renderGrid("bonds-grid", bonds, "name", "value");
+      setMeta("bonds", "Configured feed", "Delayed");
+    } catch {
+      renderGrid("bonds-grid", bonds, "name", "value");
+      setMeta("bonds", "Fallback", "Demo");
+    }
 
-    const parts = formatter.formatToParts(new Date());
-    const hour = Number(parts.find((p) => p.type === "hour")?.value || 0);
-    const minute = Number(parts.find((p) => p.type === "minute")?.value || 0);
-    const second = Number(parts.find((p) => p.type === "second")?.value || 0);
-
-    return {
-      hour,
-      minute,
-      second,
-      time: `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}:${String(second).padStart(2, "0")}`
-    };
-  }
-
-  return { init };
+    return { fx, commodities, bonds };
+  };
 })();
