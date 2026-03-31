@@ -1,115 +1,101 @@
-window.PlanetCalendar = (() => {
-  const fallbackCalendar = {
-    source: "Fallback event feed",
-    updatedAt: new Date().toLocaleString(),
-    status: "Delayed",
-    nextRelease: "US CPI - Tomorrow 08:30 ET",
-    events: [
-      { time: "08:30 ET", title: "US CPI", impact: "High", status: "Upcoming" },
-      { time: "10:00 ET", title: "US Consumer Confidence", impact: "Medium", status: "Upcoming" },
-      { time: "14:00 ET", title: "FOMC Minutes", impact: "High", status: "Scheduled" }
-    ],
-    governmentFeed: [
-      { source: "Federal Reserve", headline: "Policy statement archive update", status: "Delayed" },
-      { source: "ECB", headline: "Speeches and policy release summary", status: "Delayed" },
-      { source: "BLS", headline: "Upcoming release schedule", status: "Delayed" }
-    ]
-  };
+(function () {
+  function setMeta(prefix, source, statusText) {
+    const sourceEl = document.getElementById(`${prefix}-source`);
+    const updatedEl = document.getElementById(`${prefix}-updated`);
+    const statusEl = document.getElementById(`${prefix}-status`);
 
-  async function init() {
-    const data = await fetchCalendarData();
-    renderCalendar(data.events);
-    renderGovFeed(data.governmentFeed);
-    setCalendarMeta(data);
-    setGovernmentMeta(data);
-
-    const heroNextRelease = document.getElementById("hero-next-release");
-    if (heroNextRelease) {
-      heroNextRelease.textContent = data.nextRelease;
-    }
+    if (sourceEl) sourceEl.textContent = `Source: ${source}`;
+    if (updatedEl) updatedEl.textContent = `Last updated: ${new Date().toLocaleString()}`;
+    if (statusEl) statusEl.textContent = statusText;
   }
 
-  async function fetchCalendarData() {
+  function renderList(id, items) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = items.map(item => `
+      <article class="list-card">
+        <h3>${item.title}</h3>
+        <p>${item.date || ""}</p>
+        <a href="${item.link}" target="_blank" rel="noopener noreferrer">Open source</a>
+      </article>
+    `).join("");
+  }
+
+  async function parseRss(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("RSS fetch failed");
+    const text = await res.text();
+    const xml = new DOMParser().parseFromString(text, "text/xml");
+    const items = [...xml.querySelectorAll("item")].slice(0, 6).map(item => ({
+      title: item.querySelector("title")?.textContent?.trim() || "Untitled",
+      link: item.querySelector("link")?.textContent?.trim() || "#",
+      date: item.querySelector("pubDate")?.textContent?.trim() || ""
+    }));
+    return items;
+  }
+
+  async function fetchFedFeed() {
+    return parseRss("https://www.federalreserve.gov/feeds/press_monetary.xml");
+  }
+
+  async function fetchECBFeed() {
+    return parseRss("https://www.ecb.europa.eu/rss/press.html");
+  }
+
+  window.fetchEconomicData = async function fetchEconomicData() {
+    let govItems = [];
+    let calendarItems = [];
+
     try {
-      return fallbackCalendar;
-    } catch (error) {
-      return fallbackCalendar;
+      const [fed, ecb] = await Promise.all([
+        fetchFedFeed(),
+        fetchECBFeed()
+      ]);
+
+      govItems = [...fed.slice(0, 3), ...ecb.slice(0, 3)];
+      renderList("gov-feed-list", govItems);
+      setMeta("gov", "Federal Reserve + ECB", "Live");
+    } catch {
+      govItems = [
+        { title: "Official feed unavailable", date: "", link: "#" }
+      ];
+      renderList("gov-feed-list", govItems);
+      setMeta("gov", "Fallback", "Demo");
     }
-  }
 
-  function renderCalendar(events) {
-    const target = document.getElementById("calendar-list");
-    if (!target) return;
+    try {
+      calendarItems = [
+        {
+          title: "US BLS CPI release",
+          date: "Use official BLS calendar link",
+          link: "https://www.bls.gov/schedule/news_release/cpi.htm"
+        },
+        {
+          title: "US Employment Situation",
+          date: "Use official BLS calendar link",
+          link: "https://www.bls.gov/schedule/news_release/empsit.htm"
+        },
+        {
+          title: "FOMC calendar",
+          date: "Use official Federal Reserve calendar",
+          link: "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+        },
+        {
+          title: "ECB monetary policy meetings",
+          date: "Use official ECB calendar",
+          link: "https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html"
+        }
+      ];
 
-    target.innerHTML = events.map((event) => `
-      <div class="data-row">
-        <div>
-          <strong>${event.title}</strong>
-          <div>${event.time}</div>
-        </div>
-        <div>
-          <span class="badge ${impactToBadge(event.impact)}">${event.impact}</span>
-        </div>
-      </div>
-    `).join("");
-  }
-
-  function renderGovFeed(items) {
-    const target = document.getElementById("gov-feed-list");
-    if (!target) return;
-
-    target.innerHTML = items.map((item) => `
-      <div class="data-row">
-        <div>
-          <strong>${item.source}</strong>
-          <div>${item.headline}</div>
-        </div>
-        <div>
-          <span class="badge badge-delayed">${item.status}</span>
-        </div>
-      </div>
-    `).join("");
-  }
-
-  function setCalendarMeta(data) {
-    const source = document.getElementById("calendar-source");
-    const updated = document.getElementById("calendar-updated");
-    const status = document.getElementById("calendar-status");
-
-    if (source) source.textContent = `Source: ${data.source}`;
-    if (updated) updated.textContent = `Last updated: ${data.updatedAt}`;
-    if (status) {
-      status.textContent = data.status;
-      status.className = `badge ${statusToBadge(data.status)}`;
+      renderList("calendar-list", calendarItems);
+      setMeta("calendar", "Official release calendars", "Delayed");
+    } catch {
+      renderList("calendar-list", [
+        { title: "Calendar unavailable", date: "", link: "#" }
+      ]);
+      setMeta("calendar", "Fallback", "Demo");
     }
-  }
 
-  function setGovernmentMeta(data) {
-    const source = document.getElementById("gov-source");
-    const updated = document.getElementById("gov-updated");
-    const status = document.getElementById("gov-status");
-
-    if (source) source.textContent = `Source: ${data.source}`;
-    if (updated) updated.textContent = `Last updated: ${data.updatedAt}`;
-    if (status) {
-      status.textContent = data.status;
-      status.className = `badge ${statusToBadge(data.status)}`;
-    }
-  }
-
-  function impactToBadge(impact) {
-    const value = String(impact).toLowerCase();
-    if (value === "high") return "badge-demo";
-    if (value === "medium") return "badge-delayed";
-    return "badge-live";
-  }
-
-  function statusToBadge(status) {
-    const normalized = String(status).toLowerCase();
-    if (normalized === "live") return "badge-live";
-    if (normalized === "delayed") return "badge-delayed";
-    return "badge-demo";
-  }
-
-  return { init };
+    return { govItems, calendarItems };
+  };
 })();
